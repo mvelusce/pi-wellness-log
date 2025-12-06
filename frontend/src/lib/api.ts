@@ -1,6 +1,65 @@
 import axios from 'axios'
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000'
+// Type for runtime config injected via config.js
+declare global {
+  interface Window {
+    ENV?: {
+      BACKEND_PORT?: string
+      API_URL?: string
+    }
+  }
+}
+
+// Automatically detect API URL based on current location and runtime config
+const getApiBaseUrl = () => {
+  // Priority 1: Runtime config API_URL (from docker-entrypoint.sh via .env)
+  if (window.ENV?.API_URL) {
+    return window.ENV.API_URL
+  }
+  
+  // Priority 2: Build-time environment variable (for custom builds)
+  if (import.meta.env.VITE_API_URL) {
+    return import.meta.env.VITE_API_URL
+  }
+  
+  // Priority 3: Runtime config backend port (from .env)
+  const { protocol, hostname, port } = window.location
+  
+  if (window.ENV?.BACKEND_PORT) {
+    // Use the backend port from runtime config
+    return `${protocol}//${hostname}:${window.ENV.BACKEND_PORT}`
+  }
+  
+  // Priority 4: Localhost with standard development port
+  if (hostname === 'localhost' || hostname === '127.0.0.1') {
+    return 'http://localhost:8000'
+  }
+  
+  // Priority 5: Auto-detect backend port from frontend port
+  // This is useful when runtime config isn't available (non-Docker deployments)
+  let backendPort = '8000'
+  
+  if (port) {
+    // Common port mappings
+    const portMap: Record<string, string> = {
+      '9797': '9898',
+      '3000': '8000',
+      '80': '8000',
+      '443': '8000',
+    }
+    backendPort = portMap[port] || '8000'
+  }
+  
+  return `${protocol}//${hostname}:${backendPort}`
+}
+
+const API_BASE_URL = getApiBaseUrl()
+
+// Log the detected API URL for debugging
+console.log('API Base URL:', API_BASE_URL)
+if (window.ENV) {
+  console.log('Runtime config:', window.ENV)
+}
 
 export const api = axios.create({
   baseURL: API_BASE_URL,

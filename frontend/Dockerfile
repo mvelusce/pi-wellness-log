@@ -25,6 +25,10 @@ FROM nginx:alpine
 # Copy custom nginx config
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 
+# Copy entrypoint script for runtime config generation
+COPY docker-entrypoint.sh /docker-entrypoint.sh
+RUN chmod +x /docker-entrypoint.sh
+
 # Copy built files
 COPY --from=builder /app/dist /usr/share/nginx/html
 
@@ -35,5 +39,6 @@ EXPOSE 80
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
     CMD wget --quiet --tries=1 --spider http://localhost:80 || exit 1
 
-CMD ["nginx", "-g", "daemon off;"]
+# Use custom entrypoint to generate runtime config
+ENTRYPOINT ["/docker-entrypoint.sh"]
 

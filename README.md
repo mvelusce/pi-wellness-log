@@ -54,7 +54,13 @@ docker compose up -d
 - Frontend: http://localhost:9797
 - Backend API: http://localhost:9696
 
-**📖 Full deployment guide**: See [DEPLOYMENT.md](DEPLOYMENT.md) for detailed instructions, configuration options, and troubleshooting.
+**📖 Full deployment guide**: See [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) for:
+- Reverse proxy configuration (Nginx, Traefik)
+- SSL/HTTPS setup
+- Production deployment best practices
+- Troubleshooting common issues
+
+**Note:** The frontend automatically detects the API URL based on your `.env` configuration. No separate configuration needed!
 
 ### Option 2: Building from Source (For Development)
 

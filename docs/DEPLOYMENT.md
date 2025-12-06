@@ -47,29 +47,42 @@ Pre-built images are available on GitHub Container Registry:
 
 ### Environment Variables
 
-Edit `.env` file to configure:
+Create a `.env` file in the project root:
 
 ```bash
-# Database (SQLite by default)
+# Port Configuration
+FRONTEND_PORT=9797
+BACKEND_PORT=9898
+
+# Database Configuration
 DATABASE_URL=sqlite:///./data/habits_tracker.db
 
-# For PostgreSQL
-# DATABASE_URL=postgresql://user:password@postgres:5432/habits_tracker
-
-# Environment
-ENVIRONMENT=production
+# Optional: Custom API URL (only if using separate subdomains)
+# VITE_API_URL=https://api.your-domain.com
 ```
 
-### Custom API URL
+**How it works:**
 
-If your backend is on a different host/port, update the frontend container:
+The frontend automatically configures the API URL by reading `BACKEND_PORT` from your `.env` file:
+- No separate frontend `.env` file needed
+- No hardcoded URLs
+- Change ports in one place, everything updates automatically
 
-```yaml
-frontend:
-  image: ghcr.io/mvelusce/habits-tracker-frontend:latest
-  environment:
-    - VITE_API_URL=http://your-backend-url:8000
+**For PostgreSQL:**
+
+```bash
+DATABASE_URL=postgresql://user:password@postgres:5432/habits_tracker
 ```
+
+**Advanced: Custom API URL**
+
+Only set `VITE_API_URL` if you need complete control (e.g., separate subdomain):
+
+```bash
+VITE_API_URL=https://api.your-domain.com
+```
+
+When set, this overrides automatic port-based detection.
 
 ## Deployment Options
 
@@ -109,33 +122,70 @@ curl -sSL https://raw.githubusercontent.com/mvelusce/pi-habits-tracker/master/in
 
 ### 4. Behind Reverse Proxy (Nginx, Traefik)
 
-#### Nginx Configuration
+The frontend automatically detects the API URL based on the port configuration in your `.env` file.
+
+#### Option A: Path-Based Routing (Recommended)
+
+Route both frontend and backend through a single domain using path-based routing.
+
+**Nginx Configuration:**
 
 ```nginx
-# Frontend
 server {
     listen 80;
     server_name habits.yourdomain.com;
     
+    # Frontend - all requests
     location / {
         proxy_pass http://localhost:3000;
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
     }
-}
-
-# Backend
-server {
-    listen 80;
-    server_name api.habits.yourdomain.com;
     
-    location / {
-        proxy_pass http://localhost:8000;
+    # Backend - API requests
+    location /api/ {
+        proxy_pass http://localhost:8000/api/;
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+    
+    # Backend - health check
+    location /health {
+        proxy_pass http://localhost:8000/health;
     }
 }
 ```
+
+**Note:** For path-based routing, you'll need to set `VITE_API_URL` in your `.env`:
+
+```bash
+VITE_API_URL=https://habits.yourdomain.com
+```
+
+#### Option B: Port-Based Routing
+
+If your reverse proxy doesn't support path-based routing well, use port-based routing:
+
+1. Expose both frontend and backend on different ports
+2. The frontend automatically detects the backend port from your `.env` file
+
+**Example `.env`:**
+```bash
+FRONTEND_PORT=9797
+BACKEND_PORT=9898
+```
+
+**Access:**
+- Frontend: `https://yourdomain.com:9797`
+- Backend: `https://yourdomain.com:9898` (automatic)
+
+The frontend will automatically make API calls to the backend port.
+
+#### Option C: Separate Subdomains
 
 #### Traefik Labels
 
@@ -285,6 +335,60 @@ docker-compose logs
 # Remove and recreate
 docker-compose down
 docker-compose up -d
+```
+
+### Frontend shows "No data" or API errors
+
+**Symptom:** Frontend loads but shows empty dashboard, no habits, or network errors in browser console.
+
+**Diagnosis:**
+1. Open browser DevTools (F12) → Console tab
+2. Look for red errors mentioning "network", "CORS", or "api"
+3. Check the Network tab to see what URL the frontend is trying to reach
+4. Note what URL failed (e.g., `https://domain.com:9898/api/habits`)
+
+**Solutions by deployment type:**
+
+**For port-based routing:**
+```bash
+# Test if backend is accessible (adjust port to your BACKEND_PORT)
+curl http://localhost:9898/health
+# Should return: {"status":"healthy"}
+
+# Test if data is in backend
+curl http://localhost:9898/api/habits
+# Should return: [...list of habits...]
+```
+
+If these fail:
+- Check that BACKEND_PORT in `.env` matches your backend container port mapping
+- Verify backend container is running: `docker ps | grep backend`
+- Check firewall allows the backend port
+
+**For path-based routing (Nginx):**
+```bash
+# Test API through reverse proxy
+curl https://yourdomain.com/api/habits
+# Should return: [...list of habits...]
+
+# Test backend directly
+curl http://localhost:8000/api/habits
+```
+
+If direct test works but reverse proxy fails:
+- Check nginx config routes `/api/*` to backend
+- Reload nginx: `sudo nginx -s reload`
+
+**General checks:**
+```bash
+# Verify database file exists
+docker exec habits-tracker-backend ls -la /app/data/habits_tracker.db
+
+# Check backend logs
+docker logs habits-tracker-backend
+
+# Restart backend
+docker restart habits-tracker-backend
 ```
 
 ### Database locked error

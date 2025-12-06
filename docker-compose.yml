@@ -21,10 +21,15 @@ services:
     build:
       context: ./frontend
       args:
-        - VITE_API_URL=http://localhost:${BACKEND_PORT:-8000}
+        - VITE_API_URL=${VITE_API_URL:-}
     container_name: habits-tracker-frontend
     ports:
       - "${FRONTEND_PORT:-3000}:80"
+    environment:
+      # Pass backend port from .env so frontend can auto-configure API URL
+      - BACKEND_PORT=${BACKEND_PORT:-8000}
+      # Optional: Override API URL completely
+      - VITE_API_URL=${VITE_API_URL:-}
     depends_on:
       - backend
     restart: unless-stopped

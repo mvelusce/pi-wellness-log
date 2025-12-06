@@ -8,6 +8,7 @@ class HabitBase(BaseModel):
     description: Optional[str] = None
     color: str = "#3B82F6"
     icon: Optional[str] = None
+    category: str = "General"
 
 class HabitCreate(HabitBase):
     pass
@@ -17,6 +18,7 @@ class HabitUpdate(BaseModel):
     description: Optional[str] = None
     color: Optional[str] = None
     icon: Optional[str] = None
+    category: Optional[str] = None
     is_active: Optional[bool] = None
 
 class Habit(HabitBase):

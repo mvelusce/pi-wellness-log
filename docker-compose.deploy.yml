@@ -5,7 +5,7 @@ services:
     image: ghcr.io/mvelusce/habits-tracker-backend:latest
     container_name: habits-tracker-backend
     ports:
-      - "8000:8000"
+      - "${BACKEND_PORT:-8000}:8000"
     volumes:
       - ./data:/app/data
     environment:
@@ -21,7 +21,7 @@ services:
     image: ghcr.io/mvelusce/habits-tracker-frontend:latest
     container_name: habits-tracker-frontend
     ports:
-      - "3000:80"
+      - "${FRONTEND_PORT:-3000}:80"
     depends_on:
       - backend
     restart: unless-stopped

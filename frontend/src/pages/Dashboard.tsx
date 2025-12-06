@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react'
 import { useStore } from '../store/useStore'
-import { habitsApi, habitEntriesApi, moodApi } from '../lib/api'
+import { habitsApi, habitEntriesApi, moodApi, Habit } from '../lib/api'
 import { formatDate, formatDisplayDate, getMoodEmoji } from '../lib/utils'
 import HabitCard from '../components/HabitCard'
+import EditHabitModal from '../components/EditHabitModal'
 import { Calendar, TrendingUp } from 'lucide-react'
 import toast from 'react-hot-toast'
 
@@ -10,9 +11,13 @@ export default function Dashboard() {
   const { habits, setHabits, habitEntries, setHabitEntries, selectedDate, setSelectedDate } = useStore()
   const [loading, setLoading] = useState(true)
   const [todayMood, setTodayMood] = useState<number | null>(null)
+  const [editingHabit, setEditingHabit] = useState<Habit | null>(null)
+  const [selectedCategory, setSelectedCategory] = useState<string>('All')
+  const [categories, setCategories] = useState<string[]>([])
 
   useEffect(() => {
     loadData()
+    loadCategories()
   }, [selectedDate])
 
   const loadData = async () => {
@@ -38,6 +43,56 @@ export default function Dashboard() {
       toast.error('Failed to load data')
     } finally {
       setLoading(false)
+    }
+  }
+
+  const loadCategories = async () => {
+    try {
+      const response = await habitsApi.getCategories()
+      const uniqueCategories = ['All', ...response.data.categories]
+      setCategories(uniqueCategories)
+    } catch (error) {
+      console.error('Error loading categories:', error)
+    }
+  }
+
+  const handleEditHabit = async (updatedData: Partial<Habit>) => {
+    if (!editingHabit) return
+    
+    try {
+      await habitsApi.update(editingHabit.id, updatedData)
+      toast.success('Habit updated!')
+      loadData()
+      setEditingHabit(null)
+    } catch (error) {
+      console.error('Error updating habit:', error)
+      toast.error('Failed to update habit')
+    }
+  }
+
+  const handleArchiveHabit = async (id: number, name: string) => {
+    if (!confirm(`Archive "${name}"?`)) return
+    
+    try {
+      await habitsApi.archive(id)
+      toast.success('Habit archived')
+      loadData()
+    } catch (error) {
+      console.error('Error archiving habit:', error)
+      toast.error('Failed to archive habit')
+    }
+  }
+
+  const handleDeleteHabit = async (id: number, name: string) => {
+    if (!confirm(`Permanently delete "${name}"?`)) return
+    
+    try {
+      await habitsApi.delete(id)
+      toast.success('Habit deleted')
+      loadData()
+    } catch (error) {
+      console.error('Error deleting habit:', error)
+      toast.error('Failed to delete habit')
     }
   }
 
@@ -78,6 +133,21 @@ export default function Dashboard() {
   const completedCount = habitEntries.filter(e => e.completed).length
   const totalCount = habits.filter(h => h.is_active).length
   const completionRate = totalCount > 0 ? Math.round((completedCount / totalCount) * 100) : 0
+
+  // Filter and group habits
+  const activeHabits = habits.filter(h => h.is_active)
+  const filteredHabits = selectedCategory === 'All' 
+    ? activeHabits 
+    : activeHabits.filter(h => h.category === selectedCategory)
+  
+  const groupedHabits = filteredHabits.reduce((groups, habit) => {
+    const category = habit.category || 'General'
+    if (!groups[category]) {
+      groups[category] = []
+    }
+    groups[category].push(habit)
+    return groups
+  }, {} as Record<string, typeof activeHabits>)
 
   if (loading) {
     return (
@@ -158,6 +228,27 @@ export default function Dashboard() {
         </div>
       </div>
 
+      {/* Category Filter */}
+      {categories.length > 1 && (
+        <div className="bg-white rounded-lg shadow-md p-4">
+          <div className="flex flex-wrap gap-2">
+            {categories.map((category) => (
+              <button
+                key={category}
+                onClick={() => setSelectedCategory(category)}
+                className={`px-3 py-1.5 rounded-lg font-medium text-sm transition-colors ${
+                  selectedCategory === category
+                    ? 'bg-primary-600 text-white'
+                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                }`}
+              >
+                {category}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* Habits List */}
       <div>
         <div className="flex items-center justify-between mb-4">
@@ -165,39 +256,67 @@ export default function Dashboard() {
           <TrendingUp className="text-primary-600" size={24} />
         </div>
         
-        {habits.length === 0 ? (
+        {filteredHabits.length === 0 ? (
           <div className="bg-white rounded-lg shadow-md p-8 text-center">
-            <p className="text-gray-500 mb-4">No habits yet. Create your first habit!</p>
-            <a
-              href="/habits"
-              className="inline-block bg-primary-600 text-white px-6 py-2 rounded-lg hover:bg-primary-700"
-            >
-              Create Habit
-            </a>
+            <p className="text-gray-500 mb-4">
+              {habits.length === 0 ? 'No habits yet. Create your first habit!' : 'No habits in this category.'}
+            </p>
+            {habits.length === 0 && (
+              <a
+                href="/habits"
+                className="inline-block bg-primary-600 text-white px-6 py-2 rounded-lg hover:bg-primary-700"
+              >
+                Create Habit
+              </a>
+            )}
           </div>
         ) : (
-          <div className="space-y-3">
-            {habits
-              .filter(h => h.is_active)
-              .map(habit => {
-                const entry = habitEntries.find(
-                  e => e.habit_id === habit.id && e.date === formatDate(selectedDate)
-                )
+          <div className="space-y-6">
+            {Object.entries(groupedHabits).map(([category, categoryHabits]) => (
+              <div key={category}>
+                {selectedCategory === 'All' && (
+                  <h3 className="text-sm font-bold text-gray-600 mb-3 flex items-center">
+                    <span className="bg-primary-100 text-primary-700 px-3 py-1 rounded-full">
+                      {category}
+                    </span>
+                    <span className="ml-2 text-gray-500">({categoryHabits.length})</span>
+                  </h3>
+                )}
                 
-                return (
-                  <HabitCard
-                    key={habit.id}
-                    habit={habit}
-                    entry={entry}
-                    onToggle={(completed) => handleToggleHabit(habit.id, completed)}
-                    onEdit={() => {/* Navigate to edit */}}
-                    onDelete={() => {/* Handle delete */}}
-                  />
-                )
-              })}
+                <div className="space-y-3">
+                  {categoryHabits.map(habit => {
+                    const entry = habitEntries.find(
+                      e => e.habit_id === habit.id && e.date === formatDate(selectedDate)
+                    )
+                    
+                    return (
+                      <HabitCard
+                        key={habit.id}
+                        habit={habit}
+                        entry={entry}
+                        onToggle={(completed) => handleToggleHabit(habit.id, completed)}
+                        onEdit={() => setEditingHabit(habit)}
+                        onDelete={() => handleDeleteHabit(habit.id, habit.name)}
+                        onArchive={() => handleArchiveHabit(habit.id, habit.name)}
+                      />
+                    )
+                  })}
+                </div>
+              </div>
+            ))}
           </div>
         )}
       </div>
+
+      {/* Edit Modal */}
+      {editingHabit && (
+        <EditHabitModal
+          habit={editingHabit}
+          isOpen={!!editingHabit}
+          onClose={() => setEditingHabit(null)}
+          onSave={handleEditHabit}
+        />
+      )}
     </div>
   )
 }

@@ -11,6 +11,7 @@ class Habit(Base):
     description = Column(Text, nullable=True)
     color = Column(String, default="#3B82F6")  # Hex color for UI
     icon = Column(String, nullable=True)  # Emoji or icon name
+    category = Column(String, default="General")  # Category for grouping
     created_at = Column(DateTime, default=datetime.utcnow)
     is_active = Column(Boolean, default=True)
     

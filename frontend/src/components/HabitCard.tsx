@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Habit, HabitEntry } from '../lib/api'
-import { Check, Edit2, Trash2 } from 'lucide-react'
+import { Check, Edit2, Trash2, Archive } from 'lucide-react'
 
 interface HabitCardProps {
   habit: Habit
@@ -8,9 +8,10 @@ interface HabitCardProps {
   onToggle: (completed: boolean) => void
   onEdit: () => void
   onDelete: () => void
+  onArchive?: () => void
 }
 
-export default function HabitCard({ habit, entry, onToggle, onEdit, onDelete }: HabitCardProps) {
+export default function HabitCard({ habit, entry, onToggle, onEdit, onDelete, onArchive }: HabitCardProps) {
   const [showMenu, setShowMenu] = useState(false)
   const isCompleted = entry?.completed || false
 
@@ -33,11 +34,16 @@ export default function HabitCard({ habit, entry, onToggle, onEdit, onDelete }: 
           </button>
           
           <div className="flex-1">
-            <h3 className={`font-semibold text-lg ${isCompleted ? 'line-through text-gray-500' : ''}`}>
+            <h3 className={`font-semibold text-lg text-gray-800 ${isCompleted ? 'line-through text-gray-500' : ''}`}>
               {habit.name}
             </h3>
             {habit.description && (
               <p className="text-sm text-gray-600">{habit.description}</p>
+            )}
+            {habit.category && habit.category !== 'General' && (
+              <span className="inline-block mt-1 px-2 py-0.5 text-xs bg-primary-100 text-primary-700 rounded-full">
+                {habit.category}
+              </span>
             )}
           </div>
         </div>
@@ -45,7 +51,7 @@ export default function HabitCard({ habit, entry, onToggle, onEdit, onDelete }: 
         <div className="relative">
           <button
             onClick={() => setShowMenu(!showMenu)}
-            className="p-2 hover:bg-gray-100 rounded"
+            className="p-2 hover:bg-gray-100 rounded text-gray-700"
           >
             ⋮
           </button>
@@ -57,11 +63,23 @@ export default function HabitCard({ habit, entry, onToggle, onEdit, onDelete }: 
                   onEdit()
                   setShowMenu(false)
                 }}
-                className="w-full px-4 py-2 text-left hover:bg-gray-100 flex items-center space-x-2"
+                className="w-full px-4 py-2 text-left hover:bg-gray-100 flex items-center space-x-2 text-gray-700"
               >
                 <Edit2 size={16} />
                 <span>Edit</span>
               </button>
+              {onArchive && (
+                <button
+                  onClick={() => {
+                    onArchive()
+                    setShowMenu(false)
+                  }}
+                  className="w-full px-4 py-2 text-left hover:bg-gray-100 flex items-center space-x-2 text-orange-600"
+                >
+                  <Archive size={16} />
+                  <span>Archive</span>
+                </button>
+              )}
               <button
                 onClick={() => {
                   onDelete()

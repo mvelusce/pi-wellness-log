@@ -58,6 +58,37 @@ def delete_habit(habit_id: int, db: Session = Depends(get_db)):
     db.commit()
     return {"message": "Habit deleted successfully"}
 
+@router.post("/{habit_id}/archive", response_model=schemas.Habit)
+def archive_habit(habit_id: int, db: Session = Depends(get_db)):
+    """Archive a habit (set is_active to False)"""
+    db_habit = db.query(models.Habit).filter(models.Habit.id == habit_id).first()
+    if not db_habit:
+        raise HTTPException(status_code=404, detail="Habit not found")
+    
+    db_habit.is_active = False
+    db.commit()
+    db.refresh(db_habit)
+    return db_habit
+
+@router.post("/{habit_id}/unarchive", response_model=schemas.Habit)
+def unarchive_habit(habit_id: int, db: Session = Depends(get_db)):
+    """Unarchive a habit (set is_active to True)"""
+    db_habit = db.query(models.Habit).filter(models.Habit.id == habit_id).first()
+    if not db_habit:
+        raise HTTPException(status_code=404, detail="Habit not found")
+    
+    db_habit.is_active = True
+    db.commit()
+    db.refresh(db_habit)
+    return db_habit
+
+@router.get("/categories/list")
+def get_categories(db: Session = Depends(get_db)):
+    """Get all unique habit categories"""
+    categories = db.query(models.Habit.category).distinct().all()
+    return {"categories": [cat[0] for cat in categories if cat[0]]}
+
+
 @router.post("/entries", response_model=schemas.HabitEntry)
 def create_habit_entry(entry: schemas.HabitEntryCreate, db: Session = Depends(get_db)):
     """Create or update a habit entry for a specific date"""

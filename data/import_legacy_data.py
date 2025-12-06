@@ -3,7 +3,10 @@
 Import legacy habit data from CSV files into the new habits tracker database.
 
 Usage:
-    python import_legacy_data.py --habits=data/Habits.csv --checkmarks=data/Checkmarks.csv
+    python import_legacy_data.py --habits=../data/Habits.csv --checkmarks=../data/Checkmarks.csv
+
+Note: Make sure to run this from the backend directory or set PYTHONPATH appropriately.
+      The database will be created at ./data/habits_tracker.db (for Docker compatibility).
 """
 
 import csv

@@ -110,12 +110,12 @@ def migrate_habits_to_aspects(conn):
         
         # Migrate all habit entries to health aspect entries
         # Convert completed (boolean) to severity (0-10 scale)
-        # completed=True -> severity=7 (moderate presence/severity)
+        # completed=True -> severity=10 (fully present)
         # completed=False -> severity=0 (not present)
         cursor.execute("""
             INSERT INTO health_aspect_entries (aspect_id, date, severity, notes, created_at)
             SELECT ?, date, 
-                   CASE WHEN completed = 1 THEN 7 ELSE 0 END,
+                   CASE WHEN completed = 1 THEN 10 ELSE 0 END,
                    notes, created_at
             FROM habit_entries
             WHERE habit_id = ?

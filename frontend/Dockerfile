@@ -6,12 +6,15 @@ WORKDIR /app
 COPY package*.json ./
 RUN npm ci
 
-# Copy source code
-COPY . .
-
 # Build argument for API URL
 ARG VITE_API_URL
 ENV VITE_API_URL=$VITE_API_URL
+
+# Copy source code (excluding .env files which are gitignored)
+COPY . .
+
+# Remove any .env files that might have been accidentally copied
+RUN rm -f .env .env.local .env.*.local || true
 
 # Build the app
 RUN npm run build

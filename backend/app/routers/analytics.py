@@ -119,13 +119,13 @@ def get_habit_health_aspect_correlations(
     aspects = aspect_query.all()
     
     if not aspects:
-        return {"correlations": []}
+        return {"results": []}
     
     # Get habits
     habits = db.query(models.Habit).filter(models.Habit.is_active == True).all()
     
     if not habits:
-        return {"correlations": []}
+        return {"results": []}
     
     results = []
     
@@ -142,6 +142,13 @@ def get_habit_health_aspect_correlations(
         aspect_entries = aspect_entries_query.all()
         
         if not aspect_entries:
+            results.append({
+                "aspect_id": aspect.id,
+                "aspect_name": aspect.name,
+                "aspect_category": aspect.category,
+                "is_positive": bool(aspect.is_positive),
+                "correlations": []
+            })
             continue
         
         # Create DataFrame with aspect severity
@@ -150,7 +157,7 @@ def get_habit_health_aspect_correlations(
             for entry in aspect_entries
         ])
         
-        # Group by date and take average
+        # Group by date and take mean (in case duplicates)
         aspect_df = aspect_df.groupby("date").agg({"severity": "mean"}).reset_index()
         
         aspect_correlations = []
@@ -190,16 +197,22 @@ def get_habit_health_aspect_correlations(
                     merged_df["severity"]
                 )
                 
+                # Skip if correlation is NaN or infinite
+                if not pd.notna(correlation) or not pd.notna(p_value):
+                    continue
+                if not (-1 <= correlation <= 1):
+                    continue
+                
                 significant = p_value < 0.05
                 
                 aspect_correlations.append({
                     "habit_id": habit.id,
                     "habit_name": habit.name,
                     "habit_category": habit.category,
-                    "correlation": round(correlation, 3),
-                    "p_value": round(p_value, 4),
-                    "significant": significant,
-                    "sample_size": len(merged_df)
+                    "correlation": round(float(correlation), 3),
+                    "p_value": round(float(p_value), 4),
+                    "significant": bool(significant),
+                    "sample_size": int(len(merged_df))
                 })
             except Exception:
                 continue
@@ -211,7 +224,7 @@ def get_habit_health_aspect_correlations(
             "aspect_id": aspect.id,
             "aspect_name": aspect.name,
             "aspect_category": aspect.category,
-            "is_positive": aspect.is_positive,
+            "is_positive": bool(aspect.is_positive),
             "correlations": aspect_correlations[:20]  # Top 20 correlations
         })
     

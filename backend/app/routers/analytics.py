@@ -100,6 +100,123 @@ def get_habit_mood_correlations(
     
     return results
 
+@router.get("/correlations/health-aspects")
+def get_habit_health_aspect_correlations(
+    aspect_id: int = None,
+    start_date: date = None,
+    end_date: date = None,
+    min_samples: int = 7,
+    db: Session = Depends(get_db)
+):
+    """
+    Calculate correlations between habits and health aspects.
+    Shows which habits/supplements correlate with health indicators.
+    """
+    # Get health aspects
+    aspect_query = db.query(models.HealthAspect).filter(models.HealthAspect.is_active == True)
+    if aspect_id:
+        aspect_query = aspect_query.filter(models.HealthAspect.id == aspect_id)
+    aspects = aspect_query.all()
+    
+    if not aspects:
+        return {"correlations": []}
+    
+    # Get habits
+    habits = db.query(models.Habit).filter(models.Habit.is_active == True).all()
+    
+    if not habits:
+        return {"correlations": []}
+    
+    results = []
+    
+    for aspect in aspects:
+        # Get health aspect entries
+        aspect_entries_query = db.query(models.HealthAspectEntry).filter(
+            models.HealthAspectEntry.aspect_id == aspect.id
+        )
+        if start_date:
+            aspect_entries_query = aspect_entries_query.filter(models.HealthAspectEntry.date >= start_date)
+        if end_date:
+            aspect_entries_query = aspect_entries_query.filter(models.HealthAspectEntry.date <= end_date)
+        
+        aspect_entries = aspect_entries_query.all()
+        
+        if not aspect_entries:
+            continue
+        
+        # Create DataFrame with aspect severity
+        aspect_df = pd.DataFrame([
+            {"date": entry.date, "severity": entry.severity}
+            for entry in aspect_entries
+        ])
+        
+        # Group by date and take average
+        aspect_df = aspect_df.groupby("date").agg({"severity": "mean"}).reset_index()
+        
+        aspect_correlations = []
+        
+        for habit in habits:
+            # Get habit entries
+            habit_query = db.query(models.HabitEntry).filter(
+                models.HabitEntry.habit_id == habit.id
+            )
+            if start_date:
+                habit_query = habit_query.filter(models.HabitEntry.date >= start_date)
+            if end_date:
+                habit_query = habit_query.filter(models.HabitEntry.date <= end_date)
+            
+            habit_entries = habit_query.all()
+            
+            if not habit_entries:
+                continue
+            
+            # Create DataFrame with habit completion
+            habit_df = pd.DataFrame([
+                {"date": entry.date, "completed": 1 if entry.completed else 0}
+                for entry in habit_entries
+            ])
+            
+            # Merge aspect and habit data
+            merged_df = pd.merge(aspect_df, habit_df, on="date", how="inner")
+            
+            # Need minimum number of samples
+            if len(merged_df) < min_samples:
+                continue
+            
+            # Calculate Pearson correlation
+            try:
+                correlation, p_value = stats.pearsonr(
+                    merged_df["completed"],
+                    merged_df["severity"]
+                )
+                
+                significant = p_value < 0.05
+                
+                aspect_correlations.append({
+                    "habit_id": habit.id,
+                    "habit_name": habit.name,
+                    "habit_category": habit.category,
+                    "correlation": round(correlation, 3),
+                    "p_value": round(p_value, 4),
+                    "significant": significant,
+                    "sample_size": len(merged_df)
+                })
+            except Exception:
+                continue
+        
+        # Sort by absolute correlation value
+        aspect_correlations.sort(key=lambda x: abs(x["correlation"]), reverse=True)
+        
+        results.append({
+            "aspect_id": aspect.id,
+            "aspect_name": aspect.name,
+            "aspect_category": aspect.category,
+            "is_positive": aspect.is_positive,
+            "correlations": aspect_correlations[:20]  # Top 20 correlations
+        })
+    
+    return {"results": results}
+
 @router.get("/correlations/{habit_id}")
 def get_habit_correlation_details(
     habit_id: int,

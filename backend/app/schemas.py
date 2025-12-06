@@ -102,3 +102,53 @@ class MoodStats(BaseModel):
     total_entries: int
     date_range: dict
 
+# Health Aspect Schemas
+class HealthAspectBase(BaseModel):
+    name: str
+    description: Optional[str] = None
+    color: str = "#EF4444"
+    icon: Optional[str] = None
+    category: str = "General"
+    is_positive: bool = False
+
+class HealthAspectCreate(HealthAspectBase):
+    pass
+
+class HealthAspectUpdate(BaseModel):
+    name: Optional[str] = None
+    description: Optional[str] = None
+    color: Optional[str] = None
+    icon: Optional[str] = None
+    category: Optional[str] = None
+    is_positive: Optional[bool] = None
+    is_active: Optional[bool] = None
+
+class HealthAspect(HealthAspectBase):
+    id: int
+    created_at: datetime
+    is_active: bool
+    
+    class Config:
+        from_attributes = True
+
+# Health Aspect Entry Schemas
+class HealthAspectEntryBase(BaseModel):
+    aspect_id: int
+    date: date
+    severity: int = Field(ge=0, le=10)
+    notes: Optional[str] = None
+
+class HealthAspectEntryCreate(HealthAspectEntryBase):
+    pass
+
+class HealthAspectEntryUpdate(BaseModel):
+    severity: Optional[int] = Field(None, ge=0, le=10)
+    notes: Optional[str] = None
+
+class HealthAspectEntry(HealthAspectEntryBase):
+    id: int
+    created_at: datetime
+    
+    class Config:
+        from_attributes = True
+

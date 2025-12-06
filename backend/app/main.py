@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.database import engine, Base
-from app.routers import habits, mood, analytics, export
+from app.routers import habits, mood, analytics, health_aspects, export
 
 # Create database tables
 Base.metadata.create_all(bind=engine)
@@ -24,6 +24,7 @@ app.add_middleware(
 # Include routers
 app.include_router(habits.router, prefix="/api/habits", tags=["habits"])
 app.include_router(mood.router, prefix="/api/mood", tags=["mood"])
+app.include_router(health_aspects.router, prefix="/api/health-aspects", tags=["health-aspects"])
 app.include_router(analytics.router, prefix="/api/analytics", tags=["analytics"])
 app.include_router(export.router, prefix="/api/export", tags=["export"])
 

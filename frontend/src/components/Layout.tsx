@@ -1,6 +1,6 @@
 import { ReactNode } from 'react'
 import { Link, useLocation } from 'react-router-dom'
-import { Home, CheckSquare, Smile, BarChart3 } from 'lucide-react'
+import { Home, CheckSquare, Heart, BarChart3 } from 'lucide-react'
 
 interface LayoutProps {
   children: ReactNode
@@ -12,7 +12,7 @@ export default function Layout({ children }: LayoutProps) {
   const navItems = [
     { path: '/dashboard', label: 'Dashboard', icon: Home },
     { path: '/habits', label: 'Habits', icon: CheckSquare },
-    { path: '/mood', label: 'Mood', icon: Smile },
+    { path: '/health', label: 'Health', icon: Heart },
     { path: '/analytics', label: 'Analytics', icon: BarChart3 },
   ]
   

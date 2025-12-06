@@ -1,10 +1,10 @@
 import { useEffect, useState } from 'react'
 import { useStore } from '../store/useStore'
-import { habitsApi, habitEntriesApi, moodApi, Habit } from '../lib/api'
+import { habitsApi, habitEntriesApi, moodApi, healthAspectsApi, healthAspectEntriesApi, Habit, HealthAspect, HealthAspectEntry } from '../lib/api'
 import { formatDate, formatDisplayDate, getMoodEmoji } from '../lib/utils'
 import HabitCard from '../components/HabitCard'
 import EditHabitModal from '../components/EditHabitModal'
-import { Calendar, TrendingUp } from 'lucide-react'
+import { Calendar, TrendingUp, Heart } from 'lucide-react'
 import toast from 'react-hot-toast'
 
 export default function Dashboard() {
@@ -14,6 +14,10 @@ export default function Dashboard() {
   const [editingHabit, setEditingHabit] = useState<Habit | null>(null)
   const [selectedCategory, setSelectedCategory] = useState<string>('All')
   const [categories, setCategories] = useState<string[]>([])
+  
+  // Health Aspects
+  const [healthAspects, setHealthAspects] = useState<HealthAspect[]>([])
+  const [aspectEntries, setAspectEntries] = useState<HealthAspectEntry[]>([])
 
   useEffect(() => {
     loadData()
@@ -23,14 +27,18 @@ export default function Dashboard() {
   const loadData = async () => {
     try {
       setLoading(true)
-      const [habitsRes, entriesRes, moodRes] = await Promise.all([
+      const [habitsRes, entriesRes, moodRes, aspectsRes, aspectEntriesRes] = await Promise.all([
         habitsApi.getAll(),
         habitEntriesApi.getByDate(formatDate(selectedDate)),
-        moodApi.getByDate(formatDate(selectedDate))
+        moodApi.getByDate(formatDate(selectedDate)),
+        healthAspectsApi.getAll(),
+        healthAspectEntriesApi.getByDate(formatDate(selectedDate))
       ])
       
       setHabits(habitsRes.data)
       setHabitEntries(entriesRes.data)
+      setHealthAspects(aspectsRes.data.filter(a => a.is_active))
+      setAspectEntries(aspectEntriesRes.data)
       
       if (moodRes.data.length > 0) {
         const avgMood = moodRes.data.reduce((sum, m) => sum + m.mood_score, 0) / moodRes.data.length
@@ -40,7 +48,7 @@ export default function Dashboard() {
       }
     } catch (error) {
       console.error('Error loading data:', error)
-      toast.error('Failed to load data')
+      // Don't show toast to avoid spam
     } finally {
       setLoading(false)
     }
@@ -133,6 +141,17 @@ export default function Dashboard() {
   const completedCount = habitEntries.filter(e => e.completed).length
   const totalCount = habits.filter(h => h.is_active).length
   const completionRate = totalCount > 0 ? Math.round((completedCount / totalCount) * 100) : 0
+
+  // Health aspects summary
+  const checkedAspects = aspectEntries.filter(e => e.severity > 0)
+  const positiveAspects = checkedAspects.filter(e => {
+    const aspect = healthAspects.find(a => a.id === e.aspect_id)
+    return aspect?.is_positive
+  })
+  const negativeAspects = checkedAspects.filter(e => {
+    const aspect = healthAspects.find(a => a.id === e.aspect_id)
+    return !aspect?.is_positive
+  })
 
   // Filter and group habits
   const activeHabits = habits.filter(h => h.is_active)
@@ -227,6 +246,72 @@ export default function Dashboard() {
           )}
         </div>
       </div>
+
+      {/* Health Aspects Summary */}
+      {isToday && healthAspects.length > 0 && (
+        <div className="bg-white rounded-lg shadow-md p-6">
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center space-x-2">
+              <Heart className="text-red-500" size={24} />
+              <h2 className="text-xl font-bold text-gray-800">Health Indicators</h2>
+            </div>
+            <a 
+              href="/health" 
+              className="text-sm text-primary-600 hover:text-primary-700 font-semibold"
+            >
+              Track →
+            </a>
+          </div>
+          
+          {checkedAspects.length === 0 ? (
+            <p className="text-gray-500 text-sm">No health indicators tracked today</p>
+          ) : (
+            <div className="space-y-3">
+              {positiveAspects.length > 0 && (
+                <div>
+                  <p className="text-sm font-medium text-gray-600 mb-2">Positive</p>
+                  <div className="flex flex-wrap gap-2">
+                    {positiveAspects.map(entry => {
+                      const aspect = healthAspects.find(a => a.id === entry.aspect_id)
+                      if (!aspect) return null
+                      return (
+                        <span 
+                          key={entry.id}
+                          className="inline-flex items-center space-x-1 px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm"
+                        >
+                          <span>{aspect.icon}</span>
+                          <span>{aspect.name}</span>
+                        </span>
+                      )
+                    })}
+                  </div>
+                </div>
+              )}
+              
+              {negativeAspects.length > 0 && (
+                <div>
+                  <p className="text-sm font-medium text-gray-600 mb-2">Concerns</p>
+                  <div className="flex flex-wrap gap-2">
+                    {negativeAspects.map(entry => {
+                      const aspect = healthAspects.find(a => a.id === entry.aspect_id)
+                      if (!aspect) return null
+                      return (
+                        <span 
+                          key={entry.id}
+                          className="inline-flex items-center space-x-1 px-3 py-1 bg-red-100 text-red-800 rounded-full text-sm"
+                        >
+                          <span>{aspect.icon}</span>
+                          <span>{aspect.name}</span>
+                        </span>
+                      )
+                    })}
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Category Filter */}
       {categories.length > 1 && (

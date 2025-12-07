@@ -10,7 +10,7 @@ export default function Analytics() {
   const [correlations, setCorrelations] = useState<CorrelationResult[]>([])
   const [healthCorrelations, setHealthCorrelations] = useState<any>(null)
   const [moodTrends, setMoodTrends] = useState<any[]>([])
-  const [dateRange, setDateRange] = useState(30) // days
+  const [dateRange, setDateRange] = useState(30) // days (0 means all data)
   const [activeTab, setActiveTab] = useState<'mood' | 'health'>('mood')
   const [stats, setStats] = useState({
     avgMood: 0,
@@ -26,7 +26,8 @@ export default function Analytics() {
     try {
       setLoading(true)
       const endDate = format(new Date(), 'yyyy-MM-dd')
-      const startDate = format(subDays(new Date(), dateRange), 'yyyy-MM-dd')
+      // If dateRange is 0, use undefined for startDate to get all data
+      const startDate = dateRange === 0 ? undefined : format(subDays(new Date(), dateRange), 'yyyy-MM-dd')
 
       const [correlationsRes, trendsRes, healthCorrelationsRes] = await Promise.all([
         analyticsApi.getCorrelations(startDate, endDate, 5),
@@ -75,8 +76,8 @@ export default function Analytics() {
         <label className="block text-sm font-medium text-gray-700 mb-2">
           Time Period
         </label>
-        <div className="flex space-x-2">
-          {[7, 14, 30, 60, 90].map((days) => (
+        <div className="flex flex-wrap gap-2">
+          {[7, 14, 30, 60, 90, 0].map((days) => (
             <button
               key={days}
               onClick={() => setDateRange(days)}
@@ -86,7 +87,7 @@ export default function Analytics() {
                   : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
               }`}
             >
-              {days}d
+              {days === 0 ? 'All' : `${days}d`}
             </button>
           ))}
         </div>

@@ -20,8 +20,8 @@ def get_habit_mood_correlations(
     Calculate correlations between habits and mood scores.
     Returns correlation coefficient, p-value, and significance for each habit.
     """
-    # Get all active habits
-    habits = db.query(models.Habit).filter(models.Habit.is_active == True).all()
+    # Get all habits (including archived ones for historical data)
+    habits = db.query(models.Habit).all()
     
     if not habits:
         return []
@@ -71,7 +71,10 @@ def get_habit_mood_correlations(
         ])
         
         # Merge mood and habit data
-        merged_df = pd.merge(mood_df, habit_df, on="date", how="inner")
+        # Use LEFT join to include all mood tracking days
+        # Days without habit entries are treated as not completed (0)
+        merged_df = pd.merge(mood_df, habit_df, on="date", how="left")
+        merged_df["completed"] = merged_df["completed"].fillna(0)
         
         # Need minimum number of samples for meaningful correlation
         if len(merged_df) < min_samples:
@@ -121,8 +124,8 @@ def get_habit_health_aspect_correlations(
     if not aspects:
         return {"results": []}
     
-    # Get habits
-    habits = db.query(models.Habit).filter(models.Habit.is_active == True).all()
+    # Get all habits (including archived ones for historical data)
+    habits = db.query(models.Habit).all()
     
     if not habits:
         return {"results": []}
@@ -184,7 +187,10 @@ def get_habit_health_aspect_correlations(
             ])
             
             # Merge aspect and habit data
-            merged_df = pd.merge(aspect_df, habit_df, on="date", how="inner")
+            # Use LEFT join to include all health aspect tracking days
+            # Days without habit entries are treated as not completed (0)
+            merged_df = pd.merge(aspect_df, habit_df, on="date", how="left")
+            merged_df["completed"] = merged_df["completed"].fillna(0)
             
             # Need minimum number of samples
             if len(merged_df) < min_samples:
@@ -295,7 +301,8 @@ def get_habit_correlation_details(
     correlations = {}
     
     # Same day correlation
-    merged_same = pd.merge(mood_df, habit_df, on="date", how="inner")
+    merged_same = pd.merge(mood_df, habit_df, on="date", how="left")
+    merged_same["completed"] = merged_same["completed"].fillna(0)
     if len(merged_same) >= 5:
         corr, p_val = stats.pearsonr(merged_same["completed"], merged_same["mood_score"])
         correlations["same_day"] = {
@@ -307,7 +314,8 @@ def get_habit_correlation_details(
     # Next day correlation (habit today affects mood tomorrow)
     habit_df_lag1 = habit_df.copy()
     habit_df_lag1["date"] = habit_df_lag1["date"] + timedelta(days=1)
-    merged_lag1 = pd.merge(mood_df, habit_df_lag1, on="date", how="inner")
+    merged_lag1 = pd.merge(mood_df, habit_df_lag1, on="date", how="left")
+    merged_lag1["completed"] = merged_lag1["completed"].fillna(0)
     if len(merged_lag1) >= 5:
         corr, p_val = stats.pearsonr(merged_lag1["completed"], merged_lag1["mood_score"])
         correlations["next_day"] = {
@@ -319,7 +327,8 @@ def get_habit_correlation_details(
     # Two days later correlation
     habit_df_lag2 = habit_df.copy()
     habit_df_lag2["date"] = habit_df_lag2["date"] + timedelta(days=2)
-    merged_lag2 = pd.merge(mood_df, habit_df_lag2, on="date", how="inner")
+    merged_lag2 = pd.merge(mood_df, habit_df_lag2, on="date", how="left")
+    merged_lag2["completed"] = merged_lag2["completed"].fillna(0)
     if len(merged_lag2) >= 5:
         corr, p_val = stats.pearsonr(merged_lag2["completed"], merged_lag2["mood_score"])
         correlations["two_days"] = {

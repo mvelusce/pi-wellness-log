@@ -1,6 +1,6 @@
 services:
   backend:
-    image: ghcr.io/mvelusce/wellness-log-backend:latest
+    image: ghcr.io/mvelusce/pi-wellness-log-backend:latest
     container_name: wellness-log-backend
     ports:
       - "${BACKEND_PORT:-8000}:8000"
@@ -16,7 +16,7 @@ services:
       retries: 3
 
   frontend:
-    image: ghcr.io/mvelusce/wellness-log-frontend:latest
+    image: ghcr.io/mvelusce/pi-wellness-log-frontend:latest
     container_name: wellness-log-frontend
     ports:
       - "${FRONTEND_PORT:-3000}:80"

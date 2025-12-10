@@ -80,11 +80,31 @@ def get_habit_mood_correlations(
         if len(merged_df) < min_samples:
             continue
         
+        # Skip if no variation in either variable (needed for correlation)
+        if merged_df["completed"].nunique() < 2 or merged_df["mood_score"].nunique() < 2:
+            continue
+        
+        # Skip if all values are the same (would cause correlation error)
+        if merged_df["completed"].std() == 0 or merged_df["mood_score"].std() == 0:
+            continue
+        
         # Calculate Pearson correlation
-        correlation, p_value = stats.pearsonr(
-            merged_df["completed"],
-            merged_df["mood_score"]
-        )
+        try:
+            correlation, p_value = stats.pearsonr(
+                merged_df["completed"],
+                merged_df["mood_score"]
+            )
+            
+            # Skip if correlation is NaN or infinite
+            if not pd.notna(correlation) or not pd.notna(p_value):
+                continue
+            if not pd.isfinite(correlation) or not pd.isfinite(p_value):
+                continue
+            if not (-1 <= correlation <= 1):
+                continue
+        except Exception:
+            # Skip this habit if correlation calculation fails
+            continue
         
         # Consider significant if p-value < 0.05
         significant = p_value < 0.05
@@ -200,6 +220,10 @@ def get_habit_health_aspect_correlations(
             if merged_df["severity"].nunique() < 2 or merged_df["completed"].nunique() < 2:
                 continue
             
+            # Skip if all values are the same (would cause correlation error)
+            if merged_df["severity"].std() == 0 or merged_df["completed"].std() == 0:
+                continue
+            
             # Calculate Pearson correlation
             try:
                 correlation, p_value = stats.pearsonr(
@@ -209,6 +233,8 @@ def get_habit_health_aspect_correlations(
                 
                 # Skip if correlation is NaN or infinite
                 if not pd.notna(correlation) or not pd.notna(p_value):
+                    continue
+                if not pd.isfinite(correlation) or not pd.isfinite(p_value):
                     continue
                 if not (-1 <= correlation <= 1):
                     continue

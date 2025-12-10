@@ -343,7 +343,6 @@ For issues or questions, please open an issue on the repository.
 
 Potential future enhancements:
 - [ ] Protect app with user name and password
-- [ ] Make PWA works
 - [ ] More advanced analytics (time-lagged correlations)
 - [ ] Dark mode
 - [ ] Calendar heatmap view

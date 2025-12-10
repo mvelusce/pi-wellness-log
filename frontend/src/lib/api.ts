@@ -123,27 +123,6 @@ export interface MoodEntry {
   created_at: string
 }
 
-export interface HealthAspect {
-  id: number
-  name: string
-  description?: string
-  color: string
-  icon?: string
-  category: string
-  is_positive: boolean
-  is_active: boolean
-  created_at: string
-}
-
-export interface HealthAspectEntry {
-  id: number
-  aspect_id: number
-  date: string
-  severity: number
-  notes?: string
-  created_at: string
-}
-
 export interface CorrelationResult {
   habit_name: string
   habit_id: number
@@ -205,37 +184,11 @@ export const moodApi = {
     }),
 }
 
-// Health Aspects API
-export const healthAspectsApi = {
-  getAll: () => api.get<HealthAspect[]>('/api/health-aspects'),
-  getOne: (id: number) => api.get<HealthAspect>(`/api/health-aspects/${id}`),
-  create: (data: Partial<HealthAspect>) => api.post<HealthAspect>('/api/health-aspects', data),
-  update: (id: number, data: Partial<HealthAspect>) => api.put<HealthAspect>(`/api/health-aspects/${id}`, data),
-  delete: (id: number) => api.delete(`/api/health-aspects/${id}`),
-  archive: (id: number) => api.post<HealthAspect>(`/api/health-aspects/${id}/archive`),
-  unarchive: (id: number) => api.post<HealthAspect>(`/api/health-aspects/${id}/unarchive`),
-  getCategories: () => api.get<{ categories: string[] }>('/api/health-aspects/categories/list'),
-}
-
-// Health Aspect Entries API
-export const healthAspectEntriesApi = {
-  create: (data: Partial<HealthAspectEntry>) => api.post<HealthAspectEntry>('/api/health-aspects/entries', data),
-  getByDateRange: (startDate: string, endDate: string, aspectId?: number) =>
-    api.get<HealthAspectEntry[]>('/api/health-aspects/entries/range', { 
-      params: { start_date: startDate, end_date: endDate, aspect_id: aspectId } 
-    }),
-  getByDate: (date: string) => api.get<HealthAspectEntry[]>(`/api/health-aspects/entries/date/${date}`),
-}
-
 // Analytics API
 export const analyticsApi = {
   getCorrelations: (startDate?: string, endDate?: string, minSamples?: number) => 
     api.get<CorrelationResult[]>('/api/analytics/correlations', {
       params: { start_date: startDate, end_date: endDate, min_samples: minSamples }
-    }),
-  getHabitHealthAspectCorrelations: (aspectId?: number, startDate?: string, endDate?: string) =>
-    api.get('/api/analytics/correlations/health-aspects', { 
-      params: { aspect_id: aspectId, start_date: startDate, end_date: endDate } 
     }),
   getHabitCorrelation: (habitId: number, startDate?: string, endDate?: string) => 
     api.get(`/api/analytics/correlations/${habitId}`, {

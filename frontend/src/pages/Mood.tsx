@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react'
-import { moodApi, MoodEntry, healthAspectsApi, healthAspectEntriesApi, HealthAspect, HealthAspectEntry } from '../lib/api'
+import { moodApi, MoodEntry } from '../lib/api'
 import { formatDate, formatDisplayDate, getMoodEmoji } from '../lib/utils'
 import MoodPicker from '../components/MoodPicker'
-import { Heart, Smile, Check } from 'lucide-react'
+import { Heart, Smile } from 'lucide-react'
 import toast from 'react-hot-toast'
 
 export default function HealthWellness() {
@@ -23,11 +23,6 @@ export default function HealthWellness() {
     notes: '',
     tags: ''
   })
-  
-  // Health Aspects
-  const [healthAspects, setHealthAspects] = useState<HealthAspect[]>([])
-  const [aspectEntries, setAspectEntries] = useState<HealthAspectEntry[]>([])
-  const selectedDate = new Date()  // Always use today for health aspects
 
   useEffect(() => {
     let mounted = true
@@ -40,18 +35,6 @@ export default function HealthWellness() {
       } catch (error) {
         console.error('Error in loadData:', error)
       }
-      
-      try {
-        await loadHealthAspects()
-      } catch (error) {
-        console.error('Error in loadData:', error)
-      }
-      
-      try {
-        await loadAspectEntries()
-      } catch (error) {
-        console.error('Error in loadData:', error)
-      }
     }
     
     loadData()
@@ -60,26 +43,6 @@ export default function HealthWellness() {
       mounted = false
     }
   }, [])  // Empty dependency array - only run once on mount
-
-  const loadHealthAspects = async () => {
-    try {
-      const response = await healthAspectsApi.getAll()
-      setHealthAspects(response.data.filter(a => a.is_active))
-    } catch (error) {
-      console.error('Error loading health aspects:', error)
-      // Don't show toast to avoid spam
-    }
-  }
-
-  const loadAspectEntries = async () => {
-    try {
-      const response = await healthAspectEntriesApi.getByDate(formatDate(selectedDate))
-      setAspectEntries(response.data)
-    } catch (error) {
-      console.error('Error loading aspect entries:', error)
-      // Don't show toast to avoid spam
-    }
-  }
 
   const loadMoodEntries = async () => {
     try {
@@ -152,35 +115,6 @@ export default function HealthWellness() {
     }
   }
 
-  const handleToggleAspect = async (aspectId: number, currentValue: boolean) => {
-    try {
-      await healthAspectEntriesApi.create({
-        aspect_id: aspectId,
-        date: formatDate(selectedDate),
-        severity: currentValue ? 0 : 1,  // Toggle: 1 for yes, 0 for no
-      })
-      loadAspectEntries()
-    } catch (error) {
-      console.error('Error toggling health aspect:', error)
-      toast.error('Failed to update health aspect')
-    }
-  }
-
-  const isAspectChecked = (aspectId: number): boolean => {
-    const entry = aspectEntries.find(e => e.aspect_id === aspectId)
-    return entry ? entry.severity > 0 : false
-  }
-
-  // Group aspects by category
-  const groupedAspects = healthAspects.reduce((groups, aspect) => {
-    const category = aspect.category || 'General'
-    if (!groups[category]) {
-      groups[category] = []
-    }
-    groups[category].push(aspect)
-    return groups
-  }, {} as Record<string, HealthAspect[]>)
-
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
@@ -193,8 +127,6 @@ export default function HealthWellness() {
   const averageToday = todayEntries.length > 0
     ? todayEntries.reduce((sum, e) => sum + e.mood_score, 0) / todayEntries.length
     : null
-  
-  const isToday = formatDate(selectedDate) === formatDate(new Date())
   
   // Helper to display a field value with label
   const displayField = (label: string, value: number | undefined, max: number, emoji: string) => {
@@ -211,72 +143,6 @@ export default function HealthWellness() {
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold text-gray-800">Health & Wellness</h1>
         <Heart className="text-primary-600" size={28} />
-      </div>
-
-      {/* Health Aspects Section */}
-      <div className="bg-white rounded-lg shadow-md p-6">
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-xl font-bold text-gray-800">Health Indicators</h2>
-          <span className="text-sm text-gray-600">
-            {isToday ? 'Today' : formatDisplayDate(selectedDate)}
-          </span>
-        </div>
-
-        {healthAspects.length === 0 ? (
-          <p className="text-gray-500 text-center py-4">No health aspects to track yet.</p>
-        ) : (
-          <div className="space-y-6">
-            {Object.entries(groupedAspects).map(([category, aspects]) => (
-              <div key={category}>
-                <h3 className="text-sm font-bold text-gray-600 mb-3 flex items-center">
-                  <span className="bg-primary-100 text-primary-700 px-3 py-1 rounded-full">
-                    {category}
-                  </span>
-                </h3>
-                
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                  {aspects.map((aspect) => {
-                    const isChecked = isAspectChecked(aspect.id)
-                    return (
-                      <button
-                        key={aspect.id}
-                        onClick={() => handleToggleAspect(aspect.id, isChecked)}
-                        className={`flex items-center justify-between p-4 rounded-lg border-2 transition-all ${
-                          isChecked
-                            ? aspect.is_positive
-                              ? 'bg-green-50 border-green-500'
-                              : 'bg-red-50 border-red-500'
-                            : 'bg-white border-gray-300 hover:border-gray-400'
-                        }`}
-                      >
-                        <div className="flex items-center space-x-3">
-                          <span className="text-2xl">{aspect.icon}</span>
-                          <div className="text-left">
-                            <p className="font-semibold text-gray-800">{aspect.name}</p>
-                            {aspect.description && (
-                              <p className="text-xs text-gray-600">{aspect.description}</p>
-                            )}
-                          </div>
-                        </div>
-                        <div
-                          className={`w-6 h-6 rounded-full border-2 flex items-center justify-center ${
-                            isChecked
-                              ? aspect.is_positive
-                                ? 'bg-green-500 border-green-500'
-                                : 'bg-red-500 border-red-500'
-                              : 'border-gray-300'
-                          }`}
-                        >
-                          {isChecked && <Check size={16} className="text-white" />}
-                        </div>
-                      </button>
-                    )
-                  })}
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
       </div>
 
       {/* Mood Tracker Section */}

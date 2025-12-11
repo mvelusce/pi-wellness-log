@@ -24,6 +24,13 @@ The Calendar View provides a comprehensive monthly view of all your lifestyle fa
 - **Multi-Category Support**: Filter by specific categories (Health, Fitness, Nutrition, etc.)
 - **Show All**: View all lifestyle factors across all categories
 
+### ✅ Lifestyle Factor Selection
+- **Custom Selection**: Choose exactly which lifestyle factors to display on the calendar
+- **Multi-Select Interface**: Check/uncheck individual factors with a clean checkbox interface
+- **Quick Actions**: "Select All" and "Clear All" buttons for convenience
+- **Visual Indicators**: Shows count of selected factors
+- **Works with Categories**: Combine with category filter to easily select factors from specific categories
+
 ### ✅ Day Detail Modal
 Click on any day to:
 - **View All Factors**: See all lifestyle factors for that specific day
@@ -59,6 +66,16 @@ Each calendar day shows:
 3. The calendar will update to show only filtered factors
 4. Click "All" to view all categories again
 5. Hide the filter panel by clicking the X icon or filter icon again
+
+### Selecting Specific Lifestyle Factors
+1. Click the **ListChecks** icon (checklist symbol) next to the filter icon
+2. A panel will open showing all your lifestyle factors
+3. **Check/uncheck** individual factors to show/hide them on the calendar
+4. Use **Select All** to quickly select all factors
+5. Use **Clear All** to deselect everything
+6. The calendar automatically updates to show only selected factors
+7. The indicator at the top shows "X of Y factors selected"
+8. Works great with category filter - filter by category first, then select specific factors from that category
 
 ### Navigating Months
 1. Use the **left arrow (←)** to view previous months
@@ -101,6 +118,28 @@ Each calendar day shows:
 - **Consistent Colors**: Uses the same color scheme as other views
 - **Immediate Feedback**: Toggle actions show toast notifications
 - **Error Handling**: Graceful error messages if loading fails
+
+## Use Cases
+
+### Focusing on Specific Goals
+If you're working on a specific health goal, you can:
+1. Select only the lifestyle factors related to that goal
+2. View your progress on just those factors
+3. See patterns without noise from other factors
+
+Example: Working on fitness goals? Select only exercise-related factors to see your workout consistency.
+
+### Comparing Subsets
+Want to compare different aspects of your wellness?
+1. View exercise factors one week
+2. Switch to nutrition factors the next
+3. Compare completion rates and patterns
+
+### Reducing Visual Clutter
+If you have many lifestyle factors (10+):
+1. Select just the 3-5 most important ones
+2. Keep the calendar view clean and focused
+3. Easily see completion status at a glance
 
 ## Future Enhancements (Ideas)
 

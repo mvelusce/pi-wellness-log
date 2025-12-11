@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { ChevronLeft, ChevronRight, Filter, X } from 'lucide-react'
+import { ChevronLeft, ChevronRight, Filter, X, ListChecks } from 'lucide-react'
 import { lifestyleFactorsApi, lifestyleFactorEntriesApi, LifestyleFactor, LifestyleFactorEntry } from '../lib/api'
 import { formatDate } from '../lib/utils'
 import toast from 'react-hot-toast'
@@ -25,6 +25,8 @@ export default function LifestyleFactorCalendar() {
   const [categories, setCategories] = useState<string[]>([])
   const [showCategoryFilter, setShowCategoryFilter] = useState(false)
   const [selectedDay, setSelectedDay] = useState<DayModalData | null>(null)
+  const [selectedFactorIds, setSelectedFactorIds] = useState<Set<number>>(new Set())
+  const [showFactorSelector, setShowFactorSelector] = useState(false)
 
   // Calculate calendar days for the current month
   const getCalendarDays = (): DayData[] => {
@@ -87,8 +89,14 @@ export default function LifestyleFactorCalendar() {
         )
       ])
       
-      setLifestyleFactors(factorsRes.data.filter(f => f.is_active))
+      const activeFactors = factorsRes.data.filter(f => f.is_active)
+      setLifestyleFactors(activeFactors)
       setEntries(entriesRes.data)
+      
+      // Initialize with all factors selected
+      if (selectedFactorIds.size === 0) {
+        setSelectedFactorIds(new Set(activeFactors.map(f => f.id)))
+      }
     } catch (error) {
       console.error('Error loading calendar data:', error)
       toast.error('Failed to load calendar data')
@@ -154,7 +162,29 @@ export default function LifestyleFactorCalendar() {
     setCurrentDate(new Date())
   }
 
-  const filteredFactors = selectedCategory === 'All'
+  const filteredFactors = lifestyleFactors
+    .filter(f => selectedCategory === 'All' || f.category === selectedCategory)
+    .filter(f => selectedFactorIds.has(f.id))
+  
+  const toggleFactorSelection = (factorId: number) => {
+    const newSelected = new Set(selectedFactorIds)
+    if (newSelected.has(factorId)) {
+      newSelected.delete(factorId)
+    } else {
+      newSelected.add(factorId)
+    }
+    setSelectedFactorIds(newSelected)
+  }
+  
+  const selectAllFactors = () => {
+    setSelectedFactorIds(new Set(lifestyleFactors.map(f => f.id)))
+  }
+  
+  const clearAllFactors = () => {
+    setSelectedFactorIds(new Set())
+  }
+  
+  const categoryFilteredFactors = selectedCategory === 'All'
     ? lifestyleFactors
     : lifestyleFactors.filter(f => f.category === selectedCategory)
 
@@ -214,17 +244,95 @@ export default function LifestyleFactorCalendar() {
               Today
             </button>
             <button
-              onClick={() => setShowCategoryFilter(!showCategoryFilter)}
+              onClick={() => {
+                setShowFactorSelector(!showFactorSelector)
+                setShowCategoryFilter(false)
+              }}
+              className={`p-2 rounded-lg ${
+                selectedFactorIds.size < lifestyleFactors.length
+                  ? 'bg-primary-600 text-white'
+                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+              }`}
+              title="Select Factors"
+            >
+              <ListChecks size={20} />
+            </button>
+            <button
+              onClick={() => {
+                setShowCategoryFilter(!showCategoryFilter)
+                setShowFactorSelector(false)
+              }}
               className={`p-2 rounded-lg ${
                 selectedCategory !== 'All'
                   ? 'bg-primary-600 text-white'
                   : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
               }`}
+              title="Filter by Category"
             >
               <Filter size={20} />
             </button>
           </div>
         </div>
+
+        {/* Factor Selector */}
+        {showFactorSelector && (
+          <div className="mt-4 p-4 bg-gray-50 rounded-lg">
+            <div className="flex items-center justify-between mb-3">
+              <span className="text-sm font-medium text-gray-700">Select Factors to Display</span>
+              <button
+                onClick={() => setShowFactorSelector(false)}
+                className="text-gray-500 hover:text-gray-700"
+              >
+                <X size={16} />
+              </button>
+            </div>
+            
+            <div className="flex items-center gap-2 mb-3">
+              <button
+                onClick={selectAllFactors}
+                className="px-3 py-1.5 text-xs bg-primary-600 text-white rounded-lg hover:bg-primary-700"
+              >
+                Select All
+              </button>
+              <button
+                onClick={clearAllFactors}
+                className="px-3 py-1.5 text-xs bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400"
+              >
+                Clear All
+              </button>
+              <span className="text-xs text-gray-600 ml-2">
+                {selectedFactorIds.size} of {lifestyleFactors.length} selected
+              </span>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 max-h-60 overflow-y-auto">
+              {categoryFilteredFactors.map((factor) => (
+                <label
+                  key={factor.id}
+                  className="flex items-center space-x-2 p-2 bg-white rounded-lg border border-gray-200 hover:bg-gray-50 cursor-pointer"
+                >
+                  <input
+                    type="checkbox"
+                    checked={selectedFactorIds.has(factor.id)}
+                    onChange={() => toggleFactorSelection(factor.id)}
+                    className="w-4 h-4 text-primary-600 rounded focus:ring-primary-500"
+                  />
+                  <span className="text-lg">{factor.icon || '✓'}</span>
+                  <div className="flex-1 min-w-0">
+                    <div className="text-sm font-medium text-gray-800 truncate">
+                      {factor.name}
+                    </div>
+                    <div className="text-xs text-gray-500">{factor.category}</div>
+                  </div>
+                  <div
+                    className="w-3 h-3 rounded-full flex-shrink-0"
+                    style={{ backgroundColor: factor.color }}
+                  />
+                </label>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* Category Filter */}
         {showCategoryFilter && (
@@ -374,13 +482,18 @@ export default function LifestyleFactorCalendar() {
                 </button>
               </div>
               
-              {selectedCategory !== 'All' && (
-                <div className="mt-2">
+              <div className="mt-2 flex flex-wrap gap-2">
+                {selectedCategory !== 'All' && (
                   <span className="inline-block px-3 py-1 text-sm bg-primary-100 text-primary-700 rounded-full">
-                    Filtered: {selectedCategory}
+                    Category: {selectedCategory}
                   </span>
-                </div>
-              )}
+                )}
+                {selectedFactorIds.size < lifestyleFactors.length && (
+                  <span className="inline-block px-3 py-1 text-sm bg-blue-100 text-blue-700 rounded-full">
+                    {selectedFactorIds.size} of {lifestyleFactors.length} factors selected
+                  </span>
+                )}
+              </div>
             </div>
 
             <div className="p-6 overflow-y-auto flex-1">

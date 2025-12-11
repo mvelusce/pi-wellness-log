@@ -145,10 +145,22 @@ export interface WellbeingMetricEntry {
 export interface CorrelationResult {
   lifestyle_factor_name: string
   lifestyle_factor_id: number
+  metric_name: string  // e.g., "mood_score", "energy_level", etc.
   correlation: number
   p_value: number
   significant: boolean
   sample_size: number
+}
+
+export interface MetricCorrelationSummary {
+  metric_name: string
+  metric_display_name: string
+  correlations: CorrelationResult[]
+}
+
+export interface MultiMetricCorrelationResult {
+  by_metric: MetricCorrelationSummary[]
+  by_lifestyle_factor: { [key: number]: CorrelationResult[] }
 }
 
 export interface LifestyleFactorStats {
@@ -209,11 +221,19 @@ export const analyticsApi = {
     api.get<CorrelationResult[]>('/api/analytics/correlations', {
       params: { start_date: startDate, end_date: endDate, min_samples: minSamples }
     }),
-  getLifestyleFactorCorrelation: (lifestyleFactorId: number, startDate?: string, endDate?: string) => 
+  getMultiMetricCorrelations: (startDate?: string, endDate?: string, minSamples?: number, metric?: string) => 
+    api.get<MultiMetricCorrelationResult>('/api/analytics/correlations/multi-metric', {
+      params: { start_date: startDate, end_date: endDate, min_samples: minSamples, metric }
+    }),
+  getLifestyleFactorCorrelation: (lifestyleFactorId: number, startDate?: string, endDate?: string, metric?: string) => 
     api.get(`/api/analytics/correlations/${lifestyleFactorId}`, {
-      params: { start_date: startDate, end_date: endDate }
+      params: { start_date: startDate, end_date: endDate, metric }
     }),
   getMoodTrends: (startDate?: string, endDate?: string) => 
+    api.get('/api/analytics/trends/wellbeing', {
+      params: { start_date: startDate, end_date: endDate }
+    }),
+  getWellbeingTrends: (startDate?: string, endDate?: string) => 
     api.get('/api/analytics/trends/wellbeing', {
       params: { start_date: startDate, end_date: endDate }
     }),

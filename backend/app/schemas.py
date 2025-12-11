@@ -98,10 +98,22 @@ class WellbeingMetricEntry(WellbeingMetricEntryBase):
 class CorrelationResult(BaseModel):
     lifestyle_factor_name: str
     lifestyle_factor_id: int
+    metric_name: str  # e.g., "mood_score", "energy_level", etc.
     correlation: float
     p_value: float
     significant: bool
     sample_size: int
+
+class MetricCorrelationSummary(BaseModel):
+    """Summary of correlations for a single metric across all lifestyle factors"""
+    metric_name: str
+    metric_display_name: str
+    correlations: List[CorrelationResult]
+    
+class MultiMetricCorrelationResult(BaseModel):
+    """All correlations organized by metric"""
+    by_metric: List[MetricCorrelationSummary]
+    by_lifestyle_factor: dict  # lifestyle_factor_id -> list of correlations across metrics
 
 class LifestyleFactorStats(BaseModel):
     lifestyle_factor_id: int

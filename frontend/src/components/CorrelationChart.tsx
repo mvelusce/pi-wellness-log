@@ -9,7 +9,7 @@ interface CorrelationChartProps {
 export default function CorrelationChart({ data }: CorrelationChartProps) {
   if (!data || data.length === 0) {
     return (
-      <div className="bg-white rounded-lg shadow-md p-6 text-center text-gray-500">
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 text-center text-gray-500 dark:text-gray-400 transition-colors">
         <p>Not enough data to calculate correlations.</p>
         <p className="text-sm mt-2">Track lifestyleFactors and mood for at least 7 days to see correlations.</p>
       </div>
@@ -33,16 +33,16 @@ export default function CorrelationChart({ data }: CorrelationChartProps) {
   }
 
   return (
-    <div className="bg-white rounded-lg shadow-md p-6">
-      <h3 className="text-xl font-bold mb-4">LifestyleFactor-Mood Correlations</h3>
+    <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 transition-colors">
+      <h3 className="text-xl font-bold text-gray-800 dark:text-gray-200 mb-4">LifestyleFactor-Mood Correlations</h3>
       
-      <div className="mb-4 text-sm text-gray-600">
+      <div className="mb-4 text-sm text-gray-600 dark:text-gray-400">
         <p>This chart shows how each habit correlates with your mood.</p>
         <p className="mt-1">
-          <span className="text-green-600 font-semibold">Positive</span> = habit completion associated with better mood
+          <span className="text-green-600 dark:text-green-400 font-semibold">Positive</span> = habit completion associated with better mood
         </p>
         <p>
-          <span className="text-red-600 font-semibold">Negative</span> = habit completion associated with worse mood
+          <span className="text-red-600 dark:text-red-400 font-semibold">Negative</span> = habit completion associated with worse mood
         </p>
       </div>
 

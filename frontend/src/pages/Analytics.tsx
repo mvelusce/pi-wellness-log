@@ -73,7 +73,7 @@ export default function Analytics() {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 dark:border-primary-400"></div>
       </div>
     )
   }
@@ -81,13 +81,13 @@ export default function Analytics() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-gray-800">Analytics</h1>
-        <TrendingUp className="text-primary-600" size={28} />
+        <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-200">Analytics</h1>
+        <TrendingUp className="text-primary-600 dark:text-primary-400" size={28} />
       </div>
 
       {/* Date Range Selector */}
-      <div className="bg-white rounded-lg shadow-md p-4">
-        <label className="block text-sm font-medium text-gray-700 mb-2">
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-4 transition-colors">
+        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
           Time Period
         </label>
         <div className="flex flex-wrap gap-2">
@@ -97,8 +97,8 @@ export default function Analytics() {
               onClick={() => setDateRange(days)}
               className={`px-4 py-2 rounded-lg font-medium transition-colors ${
                 dateRange === days
-                  ? 'bg-primary-600 text-white'
-                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  ? 'bg-primary-600 dark:bg-primary-500 text-white'
+                  : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
               }`}
             >
               {days === 0 ? 'All' : `${days}d`}
@@ -129,8 +129,8 @@ export default function Analytics() {
       <MoodTrendChart data={moodTrends} />
 
       {/* View Mode Toggle */}
-      <div className="bg-white rounded-lg shadow-md p-4">
-        <label className="block text-sm font-medium text-gray-700 mb-2">
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-4 transition-colors">
+        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
           Correlation View
         </label>
         <div className="flex gap-2">
@@ -138,8 +138,8 @@ export default function Analytics() {
             onClick={() => setViewMode('multi')}
             className={`px-4 py-2 rounded-lg font-medium transition-colors flex items-center space-x-2 ${
               viewMode === 'multi'
-                ? 'bg-primary-600 text-white'
-                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                ? 'bg-primary-600 dark:bg-primary-500 text-white'
+                : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
             }`}
           >
             <Activity size={18} />
@@ -149,8 +149,8 @@ export default function Analytics() {
             onClick={() => setViewMode('simple')}
             className={`px-4 py-2 rounded-lg font-medium transition-colors flex items-center space-x-2 ${
               viewMode === 'simple'
-                ? 'bg-primary-600 text-white'
-                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                ? 'bg-primary-600 dark:bg-primary-500 text-white'
+                : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
             }`}
           >
             <TrendingUp size={18} />
@@ -168,8 +168,8 @@ export default function Analytics() {
 
       {/* Insights */}
       {multiMetricCorrelations && multiMetricCorrelations.by_metric.length > 0 && (
-        <div className="bg-white rounded-lg shadow-md p-6">
-          <h3 className="text-xl font-bold mb-4">💡 Key Insights</h3>
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 transition-colors">
+          <h3 className="text-xl font-bold text-gray-800 dark:text-gray-200 mb-4">💡 Key Insights</h3>
           <div className="space-y-3">
             {multiMetricCorrelations.by_metric.slice(0, 3).map((metricSummary) => {
               const topCorr = metricSummary.correlations
@@ -179,14 +179,14 @@ export default function Analytics() {
               if (!topCorr) return null
               
               return (
-                <div key={metricSummary.metric_name} className="p-4 bg-gradient-to-r from-primary-50 to-purple-50 rounded-lg border border-primary-100">
-                  <p className="font-medium text-gray-800">
+                <div key={metricSummary.metric_name} className="p-4 bg-gradient-to-r from-primary-50 dark:from-primary-900/20 to-purple-50 dark:to-purple-900/20 rounded-lg border border-primary-100 dark:border-primary-800">
+                  <p className="font-medium text-gray-800 dark:text-gray-200">
                     {topCorr.correlation > 0 ? '✅' : '⚠️'} <strong>{topCorr.lifestyle_factor_name}</strong>
                     {' '}shows a {Math.abs(topCorr.correlation) > 0.5 ? 'strong' : 'moderate'}{' '}
                     {topCorr.correlation > 0 ? 'positive' : 'negative'} correlation with{' '}
                     <strong>{metricSummary.metric_display_name}</strong>
                   </p>
-                  <p className="text-sm text-gray-600 mt-1">
+                  <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
                     Correlation: {topCorr.correlation.toFixed(3)}, Sample size: {topCorr.sample_size} days
                   </p>
                 </div>

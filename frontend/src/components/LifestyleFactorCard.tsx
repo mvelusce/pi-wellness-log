@@ -17,7 +17,7 @@ export default function LifestyleFactorCard({ lifestyleFactor, entry, onToggle, 
 
   return (
     <div
-      className="relative bg-white rounded-lg shadow-md p-4 transition-all hover:shadow-lg"
+      className="relative bg-white dark:bg-gray-800 rounded-lg shadow-md p-4 transition-all hover:shadow-lg"
       style={{ borderLeft: `4px solid ${lifestyleFactor.color}` }}
     >
       <div className="flex items-center justify-between">
@@ -26,22 +26,22 @@ export default function LifestyleFactorCard({ lifestyleFactor, entry, onToggle, 
             onClick={() => onToggle(!isCompleted)}
             className={`w-12 h-12 rounded-full flex items-center justify-center transition-all ${
               isCompleted
-                ? 'bg-primary-500 text-white scale-110'
-                : 'border-2 border-gray-300 hover:border-primary-500'
+                ? 'bg-primary-500 dark:bg-primary-600 text-white scale-110'
+                : 'border-2 border-gray-300 dark:border-gray-600 hover:border-primary-500 dark:hover:border-primary-400'
             }`}
           >
             {isCompleted ? <Check size={24} /> : lifestyleFactor.icon || '✓'}
           </button>
           
           <div className="flex-1">
-            <h3 className={`font-semibold text-lg text-gray-800 ${isCompleted ? 'line-through text-gray-500' : ''}`}>
+            <h3 className={`font-semibold text-lg text-gray-800 dark:text-gray-200 ${isCompleted ? 'line-through text-gray-500 dark:text-gray-500' : ''}`}>
               {lifestyleFactor.name}
             </h3>
             {lifestyleFactor.description && (
-              <p className="text-sm text-gray-600">{lifestyleFactor.description}</p>
+              <p className="text-sm text-gray-600 dark:text-gray-400">{lifestyleFactor.description}</p>
             )}
             {lifestyleFactor.category && lifestyleFactor.category !== 'General' && (
-              <span className="inline-block mt-1 px-2 py-0.5 text-xs bg-primary-100 text-primary-700 rounded-full">
+              <span className="inline-block mt-1 px-2 py-0.5 text-xs bg-primary-100 dark:bg-primary-900/30 text-primary-700 dark:text-primary-400 rounded-full">
                 {lifestyleFactor.category}
               </span>
             )}
@@ -51,19 +51,19 @@ export default function LifestyleFactorCard({ lifestyleFactor, entry, onToggle, 
         <div className="relative">
           <button
             onClick={() => setShowMenu(!showMenu)}
-            className="p-2 hover:bg-gray-100 rounded text-gray-700"
+            className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded text-gray-700 dark:text-gray-300"
           >
             ⋮
           </button>
           
           {showMenu && (
-            <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-xl border border-gray-200 z-10">
+            <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-lg shadow-xl border border-gray-200 dark:border-gray-700 z-10">
               <button
                 onClick={() => {
                   onEdit()
                   setShowMenu(false)
                 }}
-                className="w-full px-4 py-2 text-left hover:bg-gray-100 flex items-center space-x-2 text-gray-700"
+                className="w-full px-4 py-2 text-left hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center space-x-2 text-gray-700 dark:text-gray-300"
               >
                 <Edit2 size={16} />
                 <span>Edit</span>
@@ -74,7 +74,7 @@ export default function LifestyleFactorCard({ lifestyleFactor, entry, onToggle, 
                     onArchive()
                     setShowMenu(false)
                   }}
-                  className="w-full px-4 py-2 text-left hover:bg-gray-100 flex items-center space-x-2 text-orange-600"
+                  className="w-full px-4 py-2 text-left hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center space-x-2 text-orange-600 dark:text-orange-400"
                 >
                   <Archive size={16} />
                   <span>Archive</span>
@@ -85,7 +85,7 @@ export default function LifestyleFactorCard({ lifestyleFactor, entry, onToggle, 
                   onDelete()
                   setShowMenu(false)
                 }}
-                className="w-full px-4 py-2 text-left hover:bg-gray-100 flex items-center space-x-2 text-red-600"
+                className="w-full px-4 py-2 text-left hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center space-x-2 text-red-600 dark:text-red-400"
               >
                 <Trash2 size={16} />
                 <span>Delete</span>
@@ -96,7 +96,7 @@ export default function LifestyleFactorCard({ lifestyleFactor, entry, onToggle, 
       </div>
       
       {isCompleted && entry?.notes && (
-        <div className="mt-2 text-sm text-gray-600 bg-gray-50 p-2 rounded">
+        <div className="mt-2 text-sm text-gray-600 dark:text-gray-400 bg-gray-50 dark:bg-gray-700/50 p-2 rounded">
           💭 {entry.notes}
         </div>
       )}

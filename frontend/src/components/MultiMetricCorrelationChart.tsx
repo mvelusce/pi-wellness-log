@@ -70,8 +70,8 @@ export default function MultiMetricCorrelationChart({ data }: MultiMetricCorrela
 
   if (!data || data.length === 0) {
     return (
-      <div className="bg-white rounded-lg shadow-md p-6 text-center text-gray-500">
-        <Activity className="mx-auto mb-4" size={48} />
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 text-center text-gray-500 dark:text-gray-400 transition-colors">
+        <Activity className="mx-auto mb-4 text-gray-400 dark:text-gray-600" size={48} />
         <p className="text-lg font-medium">Not enough data to calculate correlations.</p>
         <p className="text-sm mt-2">Track lifestyle factors and wellbeing for at least 7 days to see correlations.</p>
       </div>
@@ -89,15 +89,15 @@ export default function MultiMetricCorrelationChart({ data }: MultiMetricCorrela
   }))
 
   return (
-    <div className="bg-white rounded-lg shadow-md p-6">
+    <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 transition-colors">
       <div className="flex items-center justify-between mb-6">
-        <h3 className="text-xl font-bold">Lifestyle Factor - Wellbeing Correlations</h3>
-        <Activity className="text-primary-600" size={24} />
+        <h3 className="text-xl font-bold text-gray-800 dark:text-gray-200">Lifestyle Factor - Wellbeing Correlations</h3>
+        <Activity className="text-primary-600 dark:text-primary-400" size={24} />
       </div>
 
       {/* Metric Selector */}
       <div className="mb-6">
-        <label className="block text-sm font-medium text-gray-700 mb-2">
+        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
           Select Wellbeing Metric
         </label>
         <div className="flex flex-wrap gap-2">
@@ -109,13 +109,13 @@ export default function MultiMetricCorrelationChart({ data }: MultiMetricCorrela
                 onClick={() => setSelectedMetric(metric.metric_name)}
                 className={`px-4 py-2 rounded-lg font-medium transition-colors border-2 ${
                   selectedMetric === metric.metric_name
-                    ? 'border-primary-600 bg-primary-50 text-primary-700'
-                    : 'border-gray-200 bg-white text-gray-700 hover:bg-gray-50'
+                    ? 'border-primary-600 dark:border-primary-500 bg-primary-50 dark:bg-primary-900/30 text-primary-700 dark:text-primary-400'
+                    : 'border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-600'
                 }`}
                 style={selectedMetric === metric.metric_name ? { borderColor: info.color } : {}}
               >
                 {metric.metric_display_name}
-                <span className="ml-2 text-xs text-gray-500">
+                <span className="ml-2 text-xs text-gray-500 dark:text-gray-400">
                   ({metric.correlations.filter(c => c.significant).length})
                 </span>
               </button>
@@ -125,9 +125,9 @@ export default function MultiMetricCorrelationChart({ data }: MultiMetricCorrela
       </div>
 
       {/* Info Box */}
-      <div className="mb-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+      <div className="mb-4 p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
         <div className="flex items-start space-x-2">
-          <div className="text-sm text-blue-900">
+          <div className="text-sm text-blue-900 dark:text-blue-300">
             <p className="font-semibold mb-1">About {currentMetric.metric_display_name} Correlations</p>
             <p>
               {metricInfo.higherIsBetter 
@@ -151,14 +151,14 @@ export default function MultiMetricCorrelationChart({ data }: MultiMetricCorrela
                 if (!payload || !payload[0]) return null
                 const data = payload[0].payload
                 return (
-                  <div className="bg-white p-3 shadow-lg rounded-lg border">
-                    <p className="font-semibold">{data.name}</p>
-                    <p className="text-sm">Correlation: {data.correlation.toFixed(3)}</p>
-                    <p className="text-sm">Samples: {data.samples}</p>
-                    <p className={`text-sm font-semibold ${data.significant ? 'text-green-600' : 'text-gray-500'}`}>
+                  <div className="bg-white dark:bg-gray-800 p-3 shadow-lg rounded-lg border border-gray-200 dark:border-gray-700">
+                    <p className="font-semibold text-gray-900 dark:text-gray-100">{data.name}</p>
+                    <p className="text-sm text-gray-700 dark:text-gray-300">Correlation: {data.correlation.toFixed(3)}</p>
+                    <p className="text-sm text-gray-700 dark:text-gray-300">Samples: {data.samples}</p>
+                    <p className={`text-sm font-semibold ${data.significant ? 'text-green-600 dark:text-green-400' : 'text-gray-500 dark:text-gray-400'}`}>
                       {data.significant ? '✓ Statistically Significant' : '✗ Not Significant'}
                     </p>
-                    <p className="text-xs mt-1 text-gray-600">
+                    <p className="text-xs mt-1 text-gray-600 dark:text-gray-400">
                       {getEffectDescription(data.correlation, data.significant, metricInfo.higherIsBetter)}
                     </p>
                   </div>
@@ -176,21 +176,21 @@ export default function MultiMetricCorrelationChart({ data }: MultiMetricCorrela
           </BarChart>
         </ResponsiveContainer>
       ) : (
-        <div className="text-center py-8 text-gray-500">
+        <div className="text-center py-8 text-gray-500 dark:text-gray-400">
           <p>No correlations found for this metric.</p>
         </div>
       )}
 
       {/* Correlation Details List */}
       <div className="mt-6 space-y-2">
-        <h4 className="font-semibold text-gray-700 mb-3">Detailed Results</h4>
+        <h4 className="font-semibold text-gray-700 dark:text-gray-300 mb-3">Detailed Results</h4>
         {currentMetric.correlations
           .filter(item => item.significant)
           .slice(0, 10)
           .map((item) => {
             const effectiveCorr = metricInfo.higherIsBetter ? item.correlation : -item.correlation
             return (
-              <div key={item.lifestyle_factor_id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+              <div key={item.lifestyle_factor_id} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
                 <div className="flex items-center space-x-3">
                   <div
                     className="w-3 h-3 rounded-full"
@@ -198,18 +198,18 @@ export default function MultiMetricCorrelationChart({ data }: MultiMetricCorrela
                       backgroundColor: getBarColor(item.correlation, item.significant, metricInfo.higherIsBetter)
                     }}
                   />
-                  <span className="font-medium">{item.lifestyle_factor_name}</span>
+                  <span className="font-medium text-gray-900 dark:text-gray-100">{item.lifestyle_factor_name}</span>
                   {effectiveCorr > 0 ? (
-                    <TrendingUp className="text-green-600" size={16} />
+                    <TrendingUp className="text-green-600 dark:text-green-400" size={16} />
                   ) : (
-                    <TrendingDown className="text-red-600" size={16} />
+                    <TrendingDown className="text-red-600 dark:text-red-400" size={16} />
                   )}
                 </div>
                 <div className="text-right">
-                  <p className="text-sm font-medium text-gray-900">
+                  <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
                     {getCorrelationLabel(item.correlation, metricInfo.higherIsBetter)}
                   </p>
-                  <p className="text-xs text-gray-500">
+                  <p className="text-xs text-gray-500 dark:text-gray-400">
                     r = {item.correlation.toFixed(3)}, p = {item.p_value.toFixed(4)} (n={item.sample_size})
                   </p>
                 </div>
@@ -217,16 +217,16 @@ export default function MultiMetricCorrelationChart({ data }: MultiMetricCorrela
             )
           })}
         {currentMetric.correlations.filter(c => c.significant).length === 0 && (
-          <p className="text-center text-gray-500 py-4">
+          <p className="text-center text-gray-500 dark:text-gray-400 py-4">
             No statistically significant correlations found for this metric.
           </p>
         )}
       </div>
 
       {/* Legend */}
-      <div className="mt-6 p-4 bg-gray-50 rounded-lg">
-        <h4 className="font-semibold text-gray-700 mb-2 text-sm">Interpretation Guide</h4>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-xs text-gray-600">
+      <div className="mt-6 p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
+        <h4 className="font-semibold text-gray-700 dark:text-gray-300 mb-2 text-sm">Interpretation Guide</h4>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-xs text-gray-600 dark:text-gray-400">
           <div className="flex items-center space-x-2">
             <div className="w-3 h-3 rounded-full bg-green-500"></div>
             <span>Strong positive effect</span>

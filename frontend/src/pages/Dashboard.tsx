@@ -153,7 +153,7 @@ export default function Dashboard() {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 dark:border-primary-400"></div>
       </div>
     )
   }
@@ -161,25 +161,25 @@ export default function Dashboard() {
   return (
     <div className="space-y-6">
       {/* Date Selector */}
-      <div className="bg-white rounded-lg shadow-md p-4">
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-4 transition-colors">
         <div className="flex items-center justify-between">
           <button
             onClick={() => changeDate(-1)}
-            className="p-2 hover:bg-gray-100 rounded-lg text-gray-800 font-semibold text-xl"
+            className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg text-gray-800 dark:text-gray-200 font-semibold text-xl transition-colors"
           >
             ←
           </button>
           
           <div className="flex items-center space-x-2">
-            <Calendar className="text-primary-600" size={20} />
-            <span className="text-lg font-semibold text-gray-800">
+            <Calendar className="text-primary-600 dark:text-primary-400" size={20} />
+            <span className="text-lg font-semibold text-gray-800 dark:text-gray-200">
               {isToday ? 'Today' : formatDisplayDate(selectedDate)}
             </span>
           </div>
           
           <button
             onClick={() => changeDate(1)}
-            className="p-2 hover:bg-gray-100 rounded-lg text-gray-800 font-semibold text-xl disabled:text-gray-400"
+            className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg text-gray-800 dark:text-gray-200 font-semibold text-xl disabled:text-gray-400 dark:disabled:text-gray-600 transition-colors"
             disabled={isToday}
           >
             →
@@ -189,7 +189,7 @@ export default function Dashboard() {
         {!isToday && (
           <button
             onClick={() => setSelectedDate(new Date())}
-            className="w-full mt-2 text-sm text-primary-600 hover:text-primary-700"
+            className="w-full mt-2 text-sm text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300"
           >
             Back to Today
           </button>
@@ -197,13 +197,13 @@ export default function Dashboard() {
       </div>
 
       {/* Stats Card */}
-      <div className="bg-gradient-to-r from-primary-500 to-primary-600 rounded-lg shadow-md p-6 text-white">
+      <div className="bg-gradient-to-r from-primary-500 to-primary-600 dark:from-primary-600 dark:to-primary-700 rounded-lg shadow-md p-6 text-white transition-colors">
         <div className="flex items-center justify-between mb-4">
           <div>
             <h2 className="text-2xl font-bold">
               {completedCount} / {totalCount}
             </h2>
-            <p className="text-primary-100">Lifestyle Factors Completed</p>
+            <p className="text-primary-100 dark:text-primary-200">Lifestyle Factors Completed</p>
           </div>
           <div className="text-5xl">
             {completionRate === 100 ? '🌟' : completionRate >= 75 ? '🔥' : completionRate >= 50 ? '💪' : '🌱'}
@@ -217,7 +217,7 @@ export default function Dashboard() {
           />
         </div>
         
-        <div className="mt-2 flex items-center justify-between text-sm text-primary-100">
+        <div className="mt-2 flex items-center justify-between text-sm text-primary-100 dark:text-primary-200">
           <span>{completionRate}% Complete</span>
           {todayMood && (
             <span className="flex items-center space-x-1">
@@ -232,25 +232,25 @@ export default function Dashboard() {
       {/* Check In Button */}
       <Link
         to="/wellbeing"
-        className="block bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow"
+        className="block bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 hover:shadow-lg transition-all"
       >
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-4">
-            <div className="bg-primary-100 p-3 rounded-lg">
-              <Heart className="text-primary-600" size={28} />
+            <div className="bg-primary-100 dark:bg-primary-900/30 p-3 rounded-lg">
+              <Heart className="text-primary-600 dark:text-primary-400" size={28} />
             </div>
             <div>
-              <h3 className="text-lg font-semibold text-gray-800">Check In</h3>
-              <p className="text-sm text-gray-600">Log your well-being metrics for today</p>
+              <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-200">Check In</h3>
+              <p className="text-sm text-gray-600 dark:text-gray-400">Log your well-being metrics for today</p>
             </div>
           </div>
-          <div className="text-2xl">→</div>
+          <div className="text-2xl dark:text-gray-400">→</div>
         </div>
       </Link>
 
       {/* Category Filter */}
       {categories.length > 1 && (
-        <div className="bg-white rounded-lg shadow-md p-4">
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-4 transition-colors">
           <div className="flex flex-wrap gap-2">
             {categories.map((category) => (
               <button
@@ -258,8 +258,8 @@ export default function Dashboard() {
                 onClick={() => setSelectedCategory(category)}
                 className={`px-3 py-1.5 rounded-lg font-medium text-sm transition-colors ${
                   selectedCategory === category
-                    ? 'bg-primary-600 text-white'
-                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                    ? 'bg-primary-600 dark:bg-primary-500 text-white'
+                    : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
                 }`}
               >
                 {category}
@@ -272,19 +272,19 @@ export default function Dashboard() {
       {/* Habits List */}
       <div>
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-xl font-bold text-gray-800">Your Lifestyle Factors</h2>
-          <TrendingUp className="text-primary-600" size={24} />
+          <h2 className="text-xl font-bold text-gray-800 dark:text-gray-200">Your Lifestyle Factors</h2>
+          <TrendingUp className="text-primary-600 dark:text-primary-400" size={24} />
         </div>
         
         {filteredLifestyleFactors.length === 0 ? (
-          <div className="bg-white rounded-lg shadow-md p-8 text-center">
-            <p className="text-gray-500 mb-4">
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-8 text-center transition-colors">
+            <p className="text-gray-500 dark:text-gray-400 mb-4">
               {lifestyleFactors.length === 0 ? 'No lifestyleFactors yet. Create your first habit!' : 'No lifestyleFactors in this category.'}
             </p>
             {lifestyleFactors.length === 0 && (
               <a
                 href="/lifestyleFactors"
-                className="inline-block bg-primary-600 text-white px-6 py-2 rounded-lg hover:bg-primary-700"
+                className="inline-block bg-primary-600 dark:bg-primary-500 text-white px-6 py-2 rounded-lg hover:bg-primary-700 dark:hover:bg-primary-600"
               >
                 Create LifestyleFactor
               </a>
@@ -295,11 +295,11 @@ export default function Dashboard() {
             {Object.entries(groupedLifestyleFactors).map(([category, categoryHabits]) => (
               <div key={category}>
                 {selectedCategory === 'All' && (
-                  <h3 className="text-sm font-bold text-gray-600 mb-3 flex items-center">
-                    <span className="bg-primary-100 text-primary-700 px-3 py-1 rounded-full">
+                  <h3 className="text-sm font-bold text-gray-600 dark:text-gray-400 mb-3 flex items-center">
+                    <span className="bg-primary-100 dark:bg-primary-900/30 text-primary-700 dark:text-primary-400 px-3 py-1 rounded-full">
                       {category}
                     </span>
-                    <span className="ml-2 text-gray-500">({categoryHabits.length})</span>
+                    <span className="ml-2 text-gray-500 dark:text-gray-500">({categoryHabits.length})</span>
                   </h3>
                 )}
                 

@@ -118,7 +118,7 @@ export default function WellbeingMetrics() {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 dark:border-primary-400"></div>
       </div>
     )
   }
@@ -132,7 +132,7 @@ export default function WellbeingMetrics() {
   const displayField = (label: string, value: number | undefined, max: number, emoji: string) => {
     if (value === undefined || value === null) return null
     return (
-      <span className="text-sm bg-gray-100 px-2 py-1 rounded">
+      <span className="text-sm bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded">
         {emoji} {label}: {value}/{max}
       </span>
     )
@@ -141,15 +141,15 @@ export default function WellbeingMetrics() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-gray-800">Well-being Metrics</h1>
-        <Heart className="text-primary-600" size={28} />
+        <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-200">Well-being Metrics</h1>
+        <Heart className="text-primary-600 dark:text-primary-400" size={28} />
       </div>
 
       {/* Check-ins Section */}
-      <div className="bg-white rounded-lg shadow-md p-6">
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 transition-colors">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-xl font-bold text-gray-800">Check-ins</h2>
-          <Smile className="text-primary-600" size={24} />
+          <h2 className="text-xl font-bold text-gray-800 dark:text-gray-200">Check-ins</h2>
+          <Smile className="text-primary-600 dark:text-primary-400" size={24} />
         </div>
 
       {/* Today's Summary */}
@@ -170,7 +170,7 @@ export default function WellbeingMetrics() {
       {!showForm && (
         <button
           onClick={() => setShowForm(true)}
-          className="w-full bg-primary-600 text-white py-4 rounded-lg hover:bg-primary-700 font-semibold text-lg shadow-md"
+          className="w-full bg-primary-600 dark:bg-primary-500 text-white py-4 rounded-lg hover:bg-primary-700 dark:hover:bg-primary-600 font-semibold text-lg shadow-md"
         >
           + Check-in
         </button>
@@ -178,12 +178,12 @@ export default function WellbeingMetrics() {
 
       {/* Mood Entry Form */}
       {showForm && (
-        <form onSubmit={handleSubmit} className="bg-white rounded-lg shadow-md p-6 space-y-6">
-          <h3 className="text-xl font-semibold">How are you feeling today?</h3>
+        <form onSubmit={handleSubmit} className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 space-y-6 transition-colors">
+          <h3 className="text-xl font-semibold text-gray-800 dark:text-gray-200">How are you feeling today?</h3>
 
           {/* Mood Section */}
           <div className="space-y-4">
-            <h4 className="text-lg font-semibold text-gray-700 border-b pb-2">Mood</h4>
+            <h4 className="text-lg font-semibold text-gray-700 dark:text-gray-300 border-b dark:border-gray-700 pb-2">Mood</h4>
             
             <MoodPicker
               value={formData.mood_score}
@@ -209,7 +209,7 @@ export default function WellbeingMetrics() {
 
           {/* Stress & Cognitive Section */}
           <div className="space-y-4">
-            <h4 className="text-lg font-semibold text-gray-700 border-b pb-2">Stress & Cognitive</h4>
+            <h4 className="text-lg font-semibold text-gray-700 dark:text-gray-300 border-b dark:border-gray-700 pb-2">Stress & Cognitive</h4>
             
             <MoodPicker
               value={formData.stress_level}
@@ -258,7 +258,7 @@ export default function WellbeingMetrics() {
 
           {/* Physical Symptoms Section */}
           <div className="space-y-4">
-            <h4 className="text-lg font-semibold text-gray-700 border-b pb-2">Physical Symptoms</h4>
+            <h4 className="text-lg font-semibold text-gray-700 dark:text-gray-300 border-b dark:border-gray-700 pb-2">Physical Symptoms</h4>
             
             <MoodPicker
               value={formData.general_health}
@@ -303,27 +303,27 @@ export default function WellbeingMetrics() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
               Notes (Optional)
             </label>
             <textarea
               value={formData.notes}
               onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-primary-500 dark:focus:ring-primary-400 focus:border-transparent"
               placeholder="What's on your mind?"
               rows={3}
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
               Tags (Optional)
             </label>
             <input
               type="text"
               value={formData.tags}
               onChange={(e) => setFormData({ ...formData, tags: e.target.value })}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-primary-500 dark:focus:ring-primary-400 focus:border-transparent"
               placeholder="work, exercise, social..."
             />
           </div>
@@ -331,14 +331,14 @@ export default function WellbeingMetrics() {
           <div className="flex space-x-3">
             <button
               type="submit"
-              className="flex-1 bg-primary-600 text-white py-3 rounded-lg hover:bg-primary-700 font-semibold"
+              className="flex-1 bg-primary-600 dark:bg-primary-500 text-white py-3 rounded-lg hover:bg-primary-700 dark:hover:bg-primary-600 font-semibold"
             >
               Save
             </button>
             <button
               type="button"
               onClick={() => setShowForm(false)}
-              className="flex-1 bg-gray-200 text-gray-700 py-3 rounded-lg hover:bg-gray-300 font-semibold"
+              className="flex-1 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 py-3 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 font-semibold"
             >
               Cancel
             </button>
@@ -348,35 +348,35 @@ export default function WellbeingMetrics() {
 
       {/* Recent Entries */}
       <div>
-        <h3 className="text-lg font-bold text-gray-800 mb-4">Recent Check-ins</h3>
+        <h3 className="text-lg font-bold text-gray-800 dark:text-gray-200 mb-4">Recent Check-ins</h3>
         
         {recentEntries.length === 0 ? (
-          <div className="bg-gray-50 rounded-lg p-8 text-center text-gray-500">
+          <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-8 text-center text-gray-500 dark:text-gray-400">
             <p>No mood entries yet. Log your first one!</p>
           </div>
         ) : (
           <div className="space-y-3">
             {recentEntries.slice(0, 5).map((entry) => (
-              <div key={entry.id} className="bg-gray-50 rounded-lg p-4">
+              <div key={entry.id} className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4 transition-colors">
                 <div className="flex items-center justify-between mb-2">
                   <div className="flex items-center space-x-3">
                     <span className="text-3xl">{getMoodEmoji(entry.mood_score)}</span>
                     <div>
-                      <p className="font-semibold text-lg text-gray-800">{entry.mood_score}/5</p>
-                      <p className="text-sm text-gray-600">
+                      <p className="font-semibold text-lg text-gray-800 dark:text-gray-200">{entry.mood_score}/5</p>
+                      <p className="text-sm text-gray-600 dark:text-gray-400">
                         {formatDisplayDate(entry.date)} • {new Date(entry.time).toLocaleTimeString()}
                       </p>
                     </div>
                   </div>
                   <button
                     onClick={() => handleDelete(entry.id)}
-                    className="text-red-600 hover:text-red-700 text-sm"
+                    className="text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 text-sm"
                   >
                     Delete
                   </button>
                 </div>
 
-                <div className="flex flex-wrap gap-2 text-sm text-gray-600 mb-2">
+                <div className="flex flex-wrap gap-2 text-sm text-gray-600 dark:text-gray-400 mb-2">
                   {/* Mood metrics */}
                   {displayField("Energy", entry.energy_level, 5, "⚡")}
                   
@@ -394,7 +394,7 @@ export default function WellbeingMetrics() {
                 </div>
 
                 {entry.notes && (
-                  <p className="text-gray-700 bg-white p-2 rounded mt-2">
+                  <p className="text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700/50 p-2 rounded mt-2">
                     {entry.notes}
                   </p>
                 )}
@@ -404,7 +404,7 @@ export default function WellbeingMetrics() {
                     {entry.tags.split(',').map((tag, i) => (
                       <span
                         key={i}
-                        className="px-2 py-1 bg-primary-100 text-primary-700 rounded-full text-xs"
+                        className="px-2 py-1 bg-primary-100 dark:bg-primary-900/30 text-primary-700 dark:text-primary-400 rounded-full text-xs"
                       >
                         {tag.trim()}
                       </span>

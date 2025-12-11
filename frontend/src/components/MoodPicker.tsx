@@ -49,14 +49,14 @@ export default function MoodPicker({
   
   return (
     <div className="w-full">
-      <label className="block text-sm font-medium text-gray-700 mb-2">
+      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
         {label}
       </label>
       
-      <div className="bg-white rounded-lg p-4 shadow-sm">
+      <div className="bg-white dark:bg-gray-700 rounded-lg p-4 shadow-sm transition-colors">
         <div className="flex justify-between items-center mb-4">
           {showEmoji && <span className="text-4xl">{getMoodEmoji(value)}</span>}
-          <span className="text-2xl font-bold text-primary-600">{value}/{max}</span>
+          <span className="text-2xl font-bold text-primary-600 dark:text-primary-400">{value}/{max}</span>
         </div>
         
         <input
@@ -71,7 +71,7 @@ export default function MoodPicker({
           }}
         />
         
-        <div className="flex justify-between text-xs text-gray-500 mt-2">
+        <div className="flex justify-between text-xs text-gray-500 dark:text-gray-400 mt-2">
           <span>{minLabel}</span>
           <span>{maxLabel}</span>
         </div>

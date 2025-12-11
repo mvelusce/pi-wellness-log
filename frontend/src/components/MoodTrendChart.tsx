@@ -16,15 +16,15 @@ interface MoodTrendChartProps {
 export default function MoodTrendChart({ data }: MoodTrendChartProps) {
   if (!data || data.length === 0) {
     return (
-      <div className="bg-white rounded-lg shadow-md p-6 text-center text-gray-500">
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 text-center text-gray-500 dark:text-gray-400 transition-colors">
         <p>No mood data available.</p>
       </div>
     )
   }
 
   return (
-    <div className="bg-white rounded-lg shadow-md p-6">
-      <h3 className="text-xl font-bold mb-4">Mood Trends Over Time</h3>
+    <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 transition-colors">
+      <h3 className="text-xl font-bold text-gray-800 dark:text-gray-200 mb-4">Mood Trends Over Time</h3>
       
       <ResponsiveContainer width="100%" height={300}>
         <LineChart data={data}>

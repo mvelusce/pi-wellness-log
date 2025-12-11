@@ -1,6 +1,6 @@
 import { ReactNode } from 'react'
 import { Link, useLocation } from 'react-router-dom'
-import { Home, CheckSquare, Heart, BarChart3, LogOut, Calendar } from 'lucide-react'
+import { Home, CheckSquare, Heart, BarChart3, LogOut, Calendar, Brain } from 'lucide-react'
 import { useAuth } from '../contexts/AuthContext'
 
 interface LayoutProps {
@@ -16,6 +16,7 @@ export default function Layout({ children }: LayoutProps) {
     { path: '/lifestyleFactors', label: 'Lifestyle Factors', shortLabel: 'Habits', icon: CheckSquare },
     { path: '/calendar', label: 'Calendar', shortLabel: 'Calendar', icon: Calendar },
     { path: '/wellbeing', label: 'Well-Being Metrics', shortLabel: 'Health', icon: Heart },
+    { path: '/cbt', label: 'CBT Thoughts', shortLabel: 'CBT', icon: Brain },
     { path: '/analytics', label: 'Analytics', shortLabel: 'Stats', icon: BarChart3 },
   ]
 

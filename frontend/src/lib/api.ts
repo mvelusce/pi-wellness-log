@@ -173,6 +173,19 @@ export interface LifestyleFactorStats {
   longest_streak: number
 }
 
+export interface CBTThought {
+  id: number
+  date: string
+  time: string
+  negative_thought: string
+  distortions?: string
+  alternative_thought?: string
+  notes?: string
+  intensity?: number
+  created_at: string
+  updated_at: string
+}
+
 // Lifestyle Factor API
 export const lifestyleFactorsApi = {
   getAll: (includeInactive?: boolean) => api.get<LifestyleFactor[]>('/api/lifestyle-factors', {
@@ -241,5 +254,18 @@ export const analyticsApi = {
     api.get(`/api/analytics/heatmap/${lifestyleFactorId}`, {
       params: { year }
     }),
+}
+
+// CBT Thoughts API
+export const cbtApi = {
+  create: (data: Partial<CBTThought>) => api.post<CBTThought>('/api/cbt', data),
+  getAll: (startDate?: string, endDate?: string, limit?: number) => 
+    api.get<CBTThought[]>('/api/cbt', {
+      params: { start_date: startDate, end_date: endDate, limit }
+    }),
+  getOne: (id: number) => api.get<CBTThought>(`/api/cbt/${id}`),
+  getByDate: (date: string) => api.get<CBTThought[]>(`/api/cbt/date/${date}`),
+  update: (id: number, data: Partial<CBTThought>) => api.put<CBTThought>(`/api/cbt/${id}`, data),
+  delete: (id: number) => api.delete(`/api/cbt/${id}`),
 }
 

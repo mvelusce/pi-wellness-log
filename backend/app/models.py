@@ -67,3 +67,27 @@ class WellbeingMetricEntry(Base):
     tags = Column(String, nullable=True)  # Comma-separated tags
     created_at = Column(DateTime, default=datetime.utcnow)
 
+class CBTThought(Base):
+    __tablename__ = "cbt_thoughts"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    date = Column(Date, nullable=False, index=True)
+    time = Column(DateTime, nullable=False)
+    
+    # The negative thought content
+    negative_thought = Column(Text, nullable=False)
+    
+    # Cognitive distortions (comma-separated list)
+    # e.g., "all-or-nothing,catastrophizing,mind-reading"
+    distortions = Column(String, nullable=True)
+    
+    # Alternative/balanced interpretation
+    alternative_thought = Column(Text, nullable=True)
+    
+    # Optional notes and metadata
+    notes = Column(Text, nullable=True)
+    intensity = Column(Integer, nullable=True)  # 1-10 scale for thought intensity
+    
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+

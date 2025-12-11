@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.trustedhost import TrustedHostMiddleware
 from app.database import engine, Base
-from app.routers import lifestyle_factors, wellbeing, analytics, export, auth
+from app.routers import lifestyle_factors, wellbeing, analytics, export, auth, cbt
 
 # Create database tables
 Base.metadata.create_all(bind=engine)
@@ -34,6 +34,7 @@ app.include_router(lifestyle_factors.router, prefix="/api/lifestyle-factors", ta
 app.include_router(wellbeing.router, prefix="/api/wellbeing", tags=["wellbeing"])
 app.include_router(analytics.router, prefix="/api/analytics", tags=["analytics"])
 app.include_router(export.router, prefix="/api/export", tags=["export"])
+app.include_router(cbt.router, prefix="/api/cbt", tags=["cbt"])
 
 @app.get("/")
 async def root():

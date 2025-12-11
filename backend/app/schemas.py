@@ -163,3 +163,31 @@ class User(BaseModel):
     class Config:
         from_attributes = True
 
+# CBT Thought Schemas
+class CBTThoughtBase(BaseModel):
+    date: date
+    negative_thought: str
+    distortions: Optional[str] = None  # Comma-separated list of distortion types
+    alternative_thought: Optional[str] = None
+    notes: Optional[str] = None
+    intensity: Optional[int] = Field(None, ge=1, le=10)  # 1-10 scale
+
+class CBTThoughtCreate(CBTThoughtBase):
+    pass
+
+class CBTThoughtUpdate(BaseModel):
+    negative_thought: Optional[str] = None
+    distortions: Optional[str] = None
+    alternative_thought: Optional[str] = None
+    notes: Optional[str] = None
+    intensity: Optional[int] = Field(None, ge=1, le=10)
+
+class CBTThought(CBTThoughtBase):
+    id: int
+    time: datetime
+    created_at: datetime
+    updated_at: datetime
+    
+    class Config:
+        from_attributes = True
+

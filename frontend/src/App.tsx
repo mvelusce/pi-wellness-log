@@ -7,6 +7,7 @@ import LifestyleFactors from './pages/LifestyleFactors'
 import WellbeingMetrics from './pages/WellbeingMetrics'
 import Analytics from './pages/Analytics'
 import Calendar from './pages/Calendar'
+import CBT from './pages/CBT'
 import { Login } from './pages/Login'
 
 const ProtectedRoutes = () => {
@@ -35,6 +36,7 @@ const ProtectedRoutes = () => {
         <Route path="/lifestyleFactors" element={<LifestyleFactors />} />
         <Route path="/calendar" element={<Calendar />} />
         <Route path="/wellbeing" element={<WellbeingMetrics />} />
+        <Route path="/cbt" element={<CBT />} />
         <Route path="/health" element={<Navigate to="/wellbeing" replace />} />
         <Route path="/mood" element={<Navigate to="/wellbeing" replace />} />
         <Route path="/analytics" element={<Analytics />} />

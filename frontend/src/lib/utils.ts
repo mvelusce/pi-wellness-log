@@ -15,10 +15,10 @@ export function formatDisplayDate(date: Date | string): string {
 }
 
 export function getMoodEmoji(score: number): string {
-  if (score >= 9) return '🤩'
-  if (score >= 7) return '😊'
-  if (score >= 5) return '😐'
-  if (score >= 3) return '😕'
+  if (score >= 5) return '🤩'
+  if (score >= 4) return '😊'
+  if (score >= 3) return '😐'
+  if (score >= 2) return '😕'
   return '😢'
 }
 

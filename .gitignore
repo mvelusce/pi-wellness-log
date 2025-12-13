@@ -80,5 +80,5 @@ Thumbs.db
 
 # Data
 *.csv
-*.png
+data/*.png
 data/*.py
